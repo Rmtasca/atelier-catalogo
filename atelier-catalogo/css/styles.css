@@ -1,0 +1,276 @@
+/* FONDO GENERAL DEL SITIO*/
+body {
+  background-image: url("../img/fondo.jpg");     /* Imagen de fondo artesanal */
+  background-size: cover;                        /* Cubre toda la pantalla */
+  background-position: center;                   /* Centrado visualmente */
+  background-repeat: no-repeat;                  /* No se repite */
+  background-attachment: fixed;                  /* Fijo al hacer scroll */
+  font-family: 'Georgia', serif;                 /* Tipografía cálida y elegante */
+}
+/*Boton home*/
+.home-btn-img img {
+  width: 80px; 
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/*  TÍTULO CONDICIONAL DEL CATÁLOGO */
+#tituloCatalogo {
+  font-size: 2em;
+  text-align: center;
+  margin: 40px 0 20px;
+  color: #5e4b3c;
+  font-family: 'Georgia', serif;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: aparecerTitulo 0.6s ease forwards;  /* Animación suave */
+}
+
+@keyframes aparecerTitulo {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* TARJETAS BASE (Vestidos y Trabajos) */
+.card {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.card-image img {
+  max-width: 250px;
+  border-radius: 6px;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.card-details {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.card-details li {
+  margin-bottom: 0.5rem;
+  font-family: 'Lato', sans-serif;
+  font-size: 1rem;
+}
+
+
+
+/*TARJETAS DE VESTIDOS */
+.vestido h3 {
+  font-size: 1.4em;
+  color: #5e4b3c;
+  margin-bottom: 10px;
+}
+
+.vestido p {
+  margin: 5px 0;
+  color: #6b5b4c;
+}
+
+.vestido .galeria {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.vestido .galeria img {
+  width: 100px;
+  height: auto;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+/*TARJETAS DE TRABAJOS REALIZADOS */
+.trabajo h3 {
+  font-size: 1.4em;
+  color: #5e4b3c;
+  margin-bottom: 5px;
+}
+
+.trabajo p {
+  margin: 5px 0;
+  color: #6b5b4c;
+}
+
+.trabajo .galeria {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.trabajo .galeria img {
+  width: 100px;
+  height: auto;
+  border-radius: 6px;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.firma-atelier {
+  margin-top: 15px;
+  font-size: 0.9em;
+  color: #8c7c6b;
+  text-align: right;
+  font-family: 'Courier New', monospace;         /* Estilo tipo sello  */
+}
+
+/*ÍCONOS FLOTANTES DE CONTACTO */
+#whatsapp-float,
+#Instagram-float,
+#Maps-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+#Instagram-float {
+  margin-bottom: 60px;
+}
+
+#Maps-float {
+  margin-bottom: 120px;
+}
+
+#whatsapp-float img,
+#Instagram-float img,
+#Maps-float img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/*FORMULARIOS*/
+.formulario-seccion {
+  background-color: rgba(255, 250, 246, 0.9);
+  padding: 30px;
+  margin: 40px auto;
+  max-width: 700px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  font-family: 'Georgia', serif;
+}
+
+.formulario-seccion h2 {
+  text-align: center;
+  color: #5e4b3c;
+  margin-bottom: 20px;
+}
+
+.campo {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #6b5b4c;
+}
+
+.campo input,
+.campo textarea {
+  padding: 10px;
+  border: 1px solid #d8cfc4;
+  border-radius: 8px;
+  font-family: 'Georgia', serif;
+  background-color: #fffaf6;
+}
+
+/*BOTONES DE ACCIÓN */
+.btn-enviar {
+  background-color: #5e4b3c;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-enviar:hover {
+  background-color: #7a624d;
+}
+
+/*TOOLTIP PERSONALIZADO EN BOTONES*/
+.btn-con-tooltip {
+  position: relative;
+}
+
+.btn-con-tooltip .tooltip {
+  visibility: hidden;
+  background-color: #5e4b3c;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 8px;
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8em;
+  white-space: nowrap;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.btn-con-tooltip:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* TOOLTIP PERSONALIZADO EN IMÁGENES */
+.imagen-con-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.imagen-con-tooltip .tooltip {
+  visibility: hidden;
+  background-color: #5e4b3c;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 8px;
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8em;
+  white-space: nowrap;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.imagen-con-tooltip:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+

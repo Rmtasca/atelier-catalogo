@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="es">
+    <!--Estructura para el inicio de session-->
+<head>
+  <meta charset="UTF-8">
+  <title>Login Admin</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+  <div class="encabezado">
+    <a href="index.html" class="home-btn">🏠 Inicio</a>
+    <h1>Catálogo de Vestidos</h1>
+  </div>
+</header>
+  <h2>Acceso de Administrador</h2>
+  <form id="loginForm">
+    <input type="text" id="username" placeholder="Usuario" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+    <button type="submit">Ingresar</button>
+  </form>
+<!--  Contenedor dinámico donde se mostrarán los trabajos registrados -->
+    <div id="listaTrabajos" class="container">
+      <!-- Aquí se insertan las tarjetas de trabajos realizados -->
+    </div>
+  <script src="js/auth.js"></script>
+</body>
+</html>
+ 
