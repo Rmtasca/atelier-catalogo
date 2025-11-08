@@ -1,160 +1,154 @@
+document.addEventListener('DOMContentLoaded', () => {
+  // Manejador para el formulario de Vestidos
+  const formVestido = document.getElementById('formVestido');
+  formVestido.addEventListener('submit', (e) => handleFormSubmit(e, 'vestido'));
 
-//  VERIFICACIÓN DE SESIÓN
+  // Manejador para el formulario de Trabajos
+  const formTrabajo = document.getElementById('formTrabajo');
+  formTrabajo.addEventListener('submit', (e) => handleFormSubmit(e, 'trabajo'));
 
-// Redirige al login si el usuario no está logueado
-if (sessionStorage.getItem("logueado") !== "true") {
-  window.location.href = "login.html";
-}
-
-
-//  GESTIÓN DE VESTIDOS
-
-
-// Recupera vestidos y trabajos desde localStorage
-let vestidos = JSON.parse(localStorage.getItem("vestidosNuevos")) || [];
-let trabajos = JSON.parse(localStorage.getItem("vestidosTerminados")) || [];
-
-// Referencias a formularios y contenedores
-const formVestido = document.getElementById("formVestido");
-const formTrabajo = document.getElementById("formTrabajo");
-const listaVestidos = document.getElementById("listaVestidos");
-const listaTrabajos = document.getElementById("listaTrabajos");
-
-// Renderiza los datos existentes al cargar
-vestidos.forEach(mostrarVestido);
-trabajos.forEach(mostrarTrabajo);
-
-
-//  ENVÍO DE FORMULARIO DE VESTIDOS
-
-
-formVestido.addEventListener("submit", async function (e) {
-  e.preventDefault();
-
-  // Captura datos del formulario
-  const nuevoVestido = {
-    nombre: formVestido.elements["nombre"].value,
-    descripcion: formVestido.elements["descripcion"].value,
-    precio: formVestido.elements["precio"].value,
-    talles: formVestido.elements["talles"].value.split(",").map(t => t.trim()),
-    fotos: await obtenerImagenes([
-      formVestido.elements["foto1"],
-      formVestido.elements["foto2"],
-      formVestido.elements["foto3"]
-    ])
-  };
-
-  // Guarda y muestra
-  guardarVestido(nuevoVestido);
-  formVestido.reset();
+  // Cargar datos iniciales
+  cargarDatos('vestidos');
+  cargarDatos('trabajos');
 });
 
+// --- FUNCIÓN GENERAL PARA MANEJAR EL ENVÍO DE AMBOS FORMULARIOS ---
+async function handleFormSubmit(event, tipo) {
+  event.preventDefault();
+  const form = event.target;
 
-//  ENVÍO DE FORMULARIO DE TRABAJOS
+  let data = {};
+  let endpoint = '';
 
-
-formTrabajo.addEventListener("submit", async function (e) {
-  e.preventDefault();
-
-  // Captura datos del formulario
-  const nuevoTrabajo = {
-    titulo: formTrabajo.elements["tituloTrabajo"].value,
-    detalle: formTrabajo.elements["detalleTrabajo"].value,
-    fecha: formTrabajo.elements["fechaTrabajo"].value,
-    fotos: await obtenerImagenes([
-      formTrabajo.elements["fotoTrabajo1"],
-      formTrabajo.elements["fotoTrabajo2"],
-      formTrabajo.elements["fotoTrabajo3"]
-    ])
-  };
-
-  // Guarda y muestra
-  guardarTrabajo(nuevoTrabajo);
-  formTrabajo.reset();
-});
-
-
-//  FUNCIONES DE GUARDADO Y RENDERIZADO
-
-
-function guardarVestido(vestido) {
-  vestidos.push(vestido);
-  localStorage.setItem("vestidosNuevos", JSON.stringify(vestidos));
-  mostrarVestido(vestido);
-  descargarJSON("vestidosNuevos.json", vestidos); // Exporta archivo
-}
-
-function guardarTrabajo(trabajo) {
-  trabajos.push(trabajo);
-  localStorage.setItem("vestidosTerminados", JSON.stringify(trabajos));
-  mostrarTrabajo(trabajo);
-  descargarJSON("vestidosTerminados.json", trabajos); // Exporta archivo
-}
-
-function mostrarVestido(v) {
-  const card = document.createElement("div");
-  card.className = "vestido tarjeta";
-  card.innerHTML = `
-    <h3>${v.nombre}</h3>
-    <p>${v.descripcion}</p>
-    <p><strong>Precio:</strong> $${v.precio}</p>
-    <p><strong>Talles:</strong> ${v.talles.join(", ")}</p>
-    <div class="galeria">
-      ${v.fotos.map(f => `<img src="${f}" alt="Foto de vestido">`).join("")}
-    </div>
-  `;
-  listaVestidos.appendChild(card);
-}
-
-function mostrarTrabajo(t) {
-  const card = document.createElement("div");
-  card.className = "trabajo tarjeta";
-  card.innerHTML = `
-    <h3>${t.titulo}</h3>
-    <p>${t.detalle}</p>
-    <p><strong>Fecha:</strong> ${t.fecha}</p>
-    <div class="galeria">
-      ${t.fotos.map(f => `<img src="${f}" alt="Foto del trabajo">`).join("")}
-    </div>
-    <div class="firma-atelier">Atelier artesanal</div>
-  `;
-  listaTrabajos.appendChild(card);
-}
-
-
-//  FUNCIONES PARA IMÁGENES
-
-
-async function obtenerImagenes(campos) {
-  const resultados = [];
-
-  for (const campo of campos) {
-    const archivo = campo.files[0];
-    if (archivo) {
-      const base64 = await leerArchivo(archivo);
-      resultados.push(base64);
-    }
+  // 1. Recopilar datos y configurar el endpoint según el tipo
+  if (tipo === 'vestido') {
+    data = {
+      nombre: form.nombre.value,
+      descripcion: form.descripcion.value,
+      precio: form.precio.value,
+      talles: form.talles.value,
+    };
+    endpoint = '/api/vestidos';
+  } else { // tipo === 'trabajo'
+    data = {
+      titulo: form.tituloTrabajo.value,
+      detalle: form.detalleTrabajo.value,
+      fecha: form.fechaTrabajo.value,
+    };
+    endpoint = '/api/trabajos';
   }
 
-  return resultados;
+  // 2. Recopilar y convertir imágenes a base64
+  try {
+    const fotos = await procesarImagenes(form, tipo);
+    data.fotos = fotos;
+  } catch (error) {
+    alert('Error al procesar imágenes: ' + error.message);
+    return;
+  }
+
+  // 3. Enviar datos al servidor
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      alert(`¡${tipo.charAt(0).toUpperCase() + tipo.slice(1)} agregado con éxito!`);
+      form.reset();
+      cargarDatos(tipo + 's'); // Recargar la lista correspondiente
+    } else {
+      const error = await response.json();
+      throw new Error(error.message || 'Error del servidor');
+    }
+  } catch (error) {
+    alert(`Error al agregar el ${tipo}: ${error.message}`);
+  }
 }
 
-function leerArchivo(archivo) {
-  return new Promise((resolve) => {
-    const lector = new FileReader();
-    lector.onload = () => resolve(lector.result);
-    lector.readAsDataURL(archivo);
+// --- FUNCIÓN PARA PROCESAR LAS IMÁGENES DE UN FORMULARIO ---
+function procesarImagenes(form, tipo) {
+  const prefijo = (tipo === 'vestido') ? 'foto' : 'fotoTrabajo';
+  const inputs = [form[prefijo + '1'], form[prefijo + '2'], form[prefijo + '3']];
+
+  const promesas = inputs.map((input, index) => {
+    return new Promise((resolve, reject) => {
+      if (input.files.length > 0) {
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve({ ['foto' + (index + 1)]: reader.result });
+        reader.onerror = (error) => reject(new Error('No se pudo leer el archivo: ' + file.name));
+      } else {
+        resolve({}); // Resuelve un objeto vacío si no hay archivo
+      }
+    });
+  });
+
+  return Promise.all(promesas).then(resultados => {
+    // Combinar los resultados en un solo objeto de fotos
+    const fotos = Object.assign({}, ...resultados);
+    if (Object.keys(fotos).length === 0) {
+        throw new Error('Debes subir al menos la imagen principal.');
+    }
+    return fotos;
   });
 }
 
+// --- FUNCIÓN PARA CARGAR Y MOSTRAR DATOS (VESTIDOS O TRABAJOS) ---
+async function cargarDatos(tipo) { // tipo será 'vestidos' o 'trabajos'
+  const endpoint = `/api/${tipo}`;
+  const listaId = (tipo === 'vestidos') ? 'listaVestidos' : 'listaTrabajos';
+  const listaElement = document.getElementById(listaId);
 
-//  DESCARGA DE ARCHIVOS JSON
+  try {
+    const response = await fetch(endpoint);
+    const datos = await response.json();
 
+    listaElement.innerHTML = ''; // Limpiar lista
 
-function descargarJSON(nombreArchivo, datos) {
-  const blob = new Blob([JSON.stringify(datos, null, 2)], { type: "application/json" });
-  const enlace = document.createElement("a");
-  enlace.href = URL.createObjectURL(blob);
-  enlace.download = nombreArchivo;
-  enlace.click();
+    datos.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'item-admin-card'; // Usar una clase común para estilos
+
+      if (tipo === 'vestidos') {
+        div.innerHTML = `
+          <img src="${item.fotos.foto1}" alt="${item.nombre}">
+          <h4>${item.nombre}</h4>
+          <p>Precio: $${item.precio}</p>
+          <button onclick="eliminarItem('${item.id}', 'vestidos')">Eliminar</button>
+        `;
+      } else { // trabajos
+        div.innerHTML = `
+          <img src="${item.fotos.foto1}" alt="${item.titulo}">
+          <h4>${item.titulo}</h4>
+          <p>Fecha: ${item.fecha}</p>
+          <button onclick="eliminarItem('${item.id}', 'trabajos')">Eliminar</button>
+        `;
+      }
+      listaElement.appendChild(div);
+    });
+  } catch (error) {
+    console.error(`Error cargando ${tipo}:`, error);
+  }
+}
+
+// --- FUNCIÓN PARA ELIMINAR UN ITEM (VESTIDO O TRABAJO) ---
+async function eliminarItem(id, tipo) {
+  if (!confirm(`¿Estás seguro de que quieres eliminar este ${tipo.slice(0, -1)}?`)) return;
+
+  try {
+    const response = await fetch(`/api/${tipo}/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      alert('Elemento eliminado con éxito');
+      cargarDatos(tipo);
+    } else {
+      const error = await response.json();
+      throw new Error(error.message);
+    }
+  } catch (error) {
+    alert('Error al eliminar: ' + error.message);
+  }
 }

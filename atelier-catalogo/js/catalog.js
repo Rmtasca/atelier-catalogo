@@ -1,99 +1,69 @@
-
-//  CARGA DE DATOS DESDE localStorage
-
-
-const vestidos = JSON.parse(localStorage.getItem("vestidosNuevos")) || [];
-const trabajos = JSON.parse(localStorage.getItem("vestidosTerminados")) || [];
-
-
-//  REFERENCIAS A ELEMENTOS DEL DOM
-
-
-const contenedorVestidos = document.getElementById("catalogo");
-const contenedorTrabajos = document.getElementById("trabajosRealizados");
-const tituloCatalogo = document.getElementById("tituloCatalogo");
-
-
-//  FUNCIÓN PARA MOSTRAR EL TÍTULO
-
-
-function actualizarTituloCatalogo() {
-  if (vestidos.length > 0 && trabajos.length > 0) {
-    tituloCatalogo.textContent = "Catálogo del Atelier";
-    tituloCatalogo.style.display = "block";
-  } else if (vestidos.length > 0) {
-    tituloCatalogo.textContent = "Catálogo de Vestidos";
-    tituloCatalogo.style.display = "block";
-  } else if (trabajos.length > 0) {
-    tituloCatalogo.textContent = "Trabajos Realizados";
-    tituloCatalogo.style.display = "block";
-  } else {
-    tituloCatalogo.style.display = "none";
-  }
-}
-
-
-//  RENDERIZAR VESTIDOS
-
-
-function mostrarVestido(v) {
-  const card = document.createElement("div");
-  card.className = "vestido tarjeta";
-  card.innerHTML = `
-    <h3>${v.nombre}</h3>
-    <p>${v.descripcion}</p>
-    <p><strong>Precio:</strong> $${v.precio}</p>
-    <p><strong>Talles:</strong> ${v.talles.join(", ")}</p>
-    <div class="galeria">
-      ${v.fotos.map(f => `<img src="${f}" alt="Foto de vestido">`).join("")}
-    </div>
-  `;
-  listaVestidos.appendChild(card);
-}
-
-function mostrarTrabajo(t) {
-  const card = document.createElement("div");
-  card.className = "trabajo tarjeta";
-  card.innerHTML = `
-    <h3>${t.titulo}</h3>
-    <p>${t.detalle}</p>
-    <p><strong>Fecha:</strong> ${t.fecha}</p>
-    <div class="galeria">
-      ${t.fotos.map(f => `<img src="${f}" alt="Foto del trabajo">`).join("")}
-    </div>
-    <div class="firma-atelier">Atelier artesanal</div>
-  `;
-  listaTrabajos.appendChild(card);
-}
-
-
-
-// 🧵 RENDERIZAR TRABAJOS REALIZADOS
-
-
-trabajos.forEach((t) => {
-  const card = document.createElement("div");
-  card.className = "trabajo tarjeta";
-  card.innerHTML = `
-    <h3>${t.titulo}</h3>
-    <p>${t.detalle}</p>
-    <p><strong>Fecha:</strong> ${t.fecha}</p>
-    <div class="galeria">
-      ${t.fotos.map((f, i) => `
-        <div class="imagen-con-tooltip">
-          <img src="${f}" alt="Foto del trabajo ${t.titulo}">
-          <span class="tooltip">Detalle ${i + 1} de ${t.titulo}</span>
-        </div>
-      `).join("")}
-    </div>
-    <div class="firma-atelier">Atelier artesanal</div>
-  `;
-  contenedorTrabajos.appendChild(card);
+document.addEventListener('DOMContentLoaded', () => {
+  // Iniciar la carga de ambas secciones en paralelo
+  cargarContenido('vestidos', 'catalogo');
+  cargarContenido('trabajos', 'trabajosRealizados');
 });
 
+// --- FUNCIÓN GENERAL PARA CARGAR VESTIDOS O TRABAJOS ---
+async function cargarContenido(tipo, contenedorId) { // tipo será 'vestidos' o 'trabajos'
+  const endpoint = `/api/${tipo}`;
+  const contenedorElement = document.getElementById(contenedorId);
+  
+  if (!contenedorElement) {
+      console.error(`Error crítico: No se encontró el elemento contenedor #${contenedorId}`);
+      return;
+  }
 
-// ACTUALIZAR TÍTULO SEGÚN CONTENIDO
+  try {
+    const response = await fetch(endpoint);
+    if (!response.ok) {
+        throw new Error(`Respuesta del servidor no fue OK (${response.status}) para ${tipo}`);
+    }
+    const datos = await response.json();
 
+    // Opcional: Si no hay datos, podrías mostrar un mensaje
+    if (datos.length === 0) {
+      if (tipo === 'vestidos') {
+         // Si no hay vestidos, no se muestra nada en el main, puede que sea intencional
+         console.log('No hay vestidos para mostrar.');
+      } else {
+         contenedorElement.innerHTML = `<p class="aviso-vacio">Aún no hay trabajos realizados para mostrar.</p>`;
+      }
+      return;
+    }
+    
+    // Título dinámico para la sección de trabajos
+    if (tipo === 'trabajos' && datos.length > 0) {
+        const tituloTrabajos = document.createElement('h2');
+        tituloTrabajos.textContent = 'Trabajos Realizados';
+        contenedorElement.before(tituloTrabajos);
+    }
 
-actualizarTituloCatalogo();
+    datos.forEach(item => {
+      const div = document.createElement('div');
+      div.className = 'vestido-card'; // Reutilizamos la clase para un estilo consistente
 
+      if (tipo === 'vestidos') {
+        div.innerHTML = `
+          <img src="${item.fotos.foto1}" alt="${item.nombre}">
+          <h3>${item.nombre}</h3>
+          <p>${item.descripcion}</p>
+          <p><strong>Precio:</strong> $${item.precio}</p>
+          <p><strong>Talles:</strong> ${item.talles}</p>
+        `;
+      } else { // trabajos
+        div.innerHTML = `
+          <img src="${item.fotos.foto1}" alt="${item.titulo}">
+          <h3>${item.titulo}</h3>
+          <p>${item.detalle}</p>
+          <p><strong>Fecha:</strong> ${item.fecha}</p>
+        `;
+      }
+      contenedorElement.appendChild(div);
+    });
+
+  } catch (error) {
+    console.error(`Error crítico al cargar ${tipo}:`, error);
+    contenedorElement.innerHTML = `<p class="aviso-error">Hubo un problema al cargar el contenido. Intente más tarde.</p>`;
+  }
+}

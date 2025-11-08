@@ -6,20 +6,27 @@
 
   <!--  Enlace al archivo de estilos CSS -->
   <link rel="stylesheet" href="css/styles.css">
+
+  <!-- SCRIPT GUARDIÁN DE SEGURIDAD -->
+  <script>
+    // Si la bandera 'logueado' no está en sessionStorage, se redirige a login.
+    if (sessionStorage.getItem("logueado") !== "true") {
+      window.location.href = "login.html";
+    }
+  </script>
 </head>
 
 <body>
-  <!-- Encabezado principal con botón de imagen flotante y título -->
+  <!-- Encabezado principal con botón home, título y botón de logout -->
 <header>
   <div class="encabezado">
     <a href="index.html" class="home-btn-img">
       <img src="img/logoHome.png" alt="Botón Home" />
     </a>
     <h1>Catálogo de Vestidos</h1>
+    <button id="logoutBtn" class="login-btn" style="cursor: pointer;">Cerrar Sesión</button> <!-- Botón de Logout añadido -->
   </div>
 </header>
-
-
 
   <!--  Sección de gestión de vestidos -->
   <section class="formulario-seccion">
@@ -124,8 +131,15 @@
     </div>
   </section>
 
-  <!--  Script que gestiona la lógica de vestidos y trabajos -->
+  <!--  Scripts de la página -->
   <script src="js/admin.js"></script>
+
+  <!-- SCRIPT PARA CERRAR SESIÓN -->
+  <script>
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      sessionStorage.removeItem('logueado');
+      window.location.href = 'login.html';
+    });
+  </script>
 </body>
 </html>
-

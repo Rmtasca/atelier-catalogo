@@ -1,0 +1,8 @@
+# Dependencias
+node_modules/
+
+# Archivo de credenciales de Firebase (¡No subir!)
+atelier-catalogo/serviceAccountKey.json
+
+# Archivos de configuración del entorno de desarrollo
+.idx/
