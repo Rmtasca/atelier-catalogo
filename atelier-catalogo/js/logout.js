@@ -1,33 +1,28 @@
-/*
- * ======================================================================
- * ARCHIVO: js/logout.js
- * FUNCIÓN: Gestiona el cierre de tu sesión.
- * ======================================================================
- *
- * Este script tiene una sola tarea: encontrar el botón de "Cerrar Sesión"
- * y decirle a Firebase que cierre tu sesión actual cuando le hagas clic.
+/**
+ * Gestiona el evento de cierre de sesión del usuario.
  */
 
-// 1. Importo las herramientas: el servicio de autenticación y la función para cerrar sesión.
-//    El servicio `auth` ya viene listo para usar desde firebase.js.
+// Importa el servicio de autenticación y la función de cierre de sesión.
 import { auth } from './firebase.js';
 import { signOut } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-// 2. Identifico el botón de "Cerrar Sesión" en el HTML por su ID.
+// Obtiene la referencia al botón de cierre de sesión del DOM.
 const logoutButton = document.getElementById('logoutBtn');
 
-// 3. Me quedo esperando a que hagas clic en ese botón.
+/**
+ * Agrega un listener al botón de cierre de sesión.
+ * Al hacer clic, cierra la sesión del usuario en Firebase y redirige al inicio.
+ * Muestra un error en caso de que falle el cierre de sesión.
+ */
 logoutButton.addEventListener('click', async () => {
   try {
-    // 4. Cuando haces clic, le digo a Firebase: "Cierra la sesión de esta persona".
+    // Cierra la sesión del usuario actual.
     await signOut(auth);
-
-    // 5. Si se cierra correctamente, te envío de vuelta a la página de inicio.
+    // Redirige al usuario a la página de inicio tras el cierre de sesión.
     window.location.href = 'index.html';
-
   } catch (error) {
-    // 6. Si por alguna razón hay un error al cerrar la sesión, lo muestro en la consola del navegador.
+    // Maneja cualquier error que ocurra durante el cierre de sesión.
     console.error('Error al cerrar sesión:', error);
-    alert('No se pudo cerrar la sesión. Inténtalo de nuevo.');
+    alert('No se pudo cerrar la sesión. Por favor, inténtalo de nuevo.');
   }
 });

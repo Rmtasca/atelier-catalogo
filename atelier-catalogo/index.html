@@ -2,27 +2,30 @@
 <html lang="es">
 
 <head>
+  <!-- Configuración de metadatos y enlaces a recursos -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Noelia Cabrera</title>
+  <title>Noelia Cabrera - Catálogo</title>
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" type="image/png" href="img/logoHome.png">
 </head>
 
 <body>
+  <!-- Encabezado principal con navegación -->
   <header>
     <div class="encabezado">
-      <a href="index.html" class="home-btn-img">
-        <img src="img/logoHome.png" alt="Botón Home" />
-      </a>
+      <a href="index.html" class="site-title">Noelia Cabrera Studio Atelier</a>
       <h1>Catálogo de Vestidos</h1>
       <a href="login.html" class="login-btn">Login</a>
     </div>
   </header>
 
+  <!-- Contenedor principal para el contenido dinámico -->
   <h2 id="tituloCatalogo">Vestidos Base</h2>
   <main id="catalogo" class="container"></main>
   <div id="trabajosRealizados" class="container"></div>
 
+  <!-- Script para cargar el catálogo de productos -->
   <script src="js/catalog.js" type="module"></script>
 </body>
 

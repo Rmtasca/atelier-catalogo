@@ -1,48 +1,38 @@
-<!--
-  ======================================================================
-  ARCHIVO: login.html
-  FUNCIÓN: Esta es la página donde inicias sesión como administrador.
-  ======================================================================
--->
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Configuración de metadatos y enlace a hoja de estilos -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Admin</title>
+  <title>Login - Administración</title>
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" type="image/png" href="img/logoHome.png">
 </head>
 <body>
 
+  <!-- Encabezado principal con navegación -->
   <header>
     <div class="encabezado">
-      <a href="index.html" class="home-btn">🏠 Inicio</a>
+      <a href="index.html" class="site-title">Noelia Cabrera Studio Atelier</a>
       <h1>Catálogo de Vestidos</h1>
     </div>
   </header>
 
   <h2>Acceso de Administrador</h2>
 
-  <!-- 1. Este es tu formulario para entrar. Le pongo el id="loginForm" para que mi código JavaScript sepa a quién escuchar. -->
+  <!-- Formulario de inicio de sesión -->
   <form id="loginForm">
-    
-    <!-- 2. Te pido tu correo y contraseña. Los marco como "email" y "password" para que el navegador te ayude a llenarlos. -->
+    <!-- Campos de entrada para credenciales -->
     <input type="email" id="email" placeholder="Correo Electrónico" required>
     <input type="password" id="password" placeholder="Contraseña" required>
     <button type="submit">Ingresar</button>
   </form>
 
-  <!-- 3. Dejo este párrafo vacío aquí. Lo usaré para mostrarte un mensaje si te equivocas al ingresar. -->
-  <p id="error-message" style="color: red; text-align: center; margin-top: 10px;"></p>
+  <!-- Elemento para mostrar mensajes de error de autenticación -->
+  <p id="error-message" class="error-message"></p>
 
-  <!-- 
-    4. Aquí cargo los scripts necesarios.
-       - Los dos primeros son las librerías generales de Firebase que me dan la funcionalidad básica.
-       - El último, "auth.js", es el script que yo escribí para que este formulario funcione de verdad.
-       - Lo cargo como "module" porque usa la sintaxis moderna de `import` y `export`.
-  -->
-  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js"></script>
+  <!-- Scripts para la funcionalidad de autenticación -->
+  <script type="module" src="js/firebase.js"></script>
   <script type="module" src="js/auth.js"></script>
 
 </body>

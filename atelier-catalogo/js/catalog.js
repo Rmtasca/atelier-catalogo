@@ -1,29 +1,27 @@
-/*
- * ======================================================================
- * SCRIPT DEL CATÁLOGO PÚBLICO (v5.1 - Unificación de Estilos de Tarjeta)
- * ======================================================================
- *
- * Se reemplaza la lógica de renderizado de tarjetas por la misma que usa
- * `admin.js` para asegurar que el diseño sea idéntico en ambas páginas.
- * Se usan las clases CSS `.item-card` en lugar de `.card-publica`.
+/**
+ * Carga y renderiza el contenido del catálogo público desde Firestore.
  */
 
-// --- IMPORTACIÓN DE MÓDULOS DE FIREBASE ---
+// Importa los módulos necesarios de Firebase.
 import { db, storage } from './firebase.js';
 import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { ref, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
-// --- EVENT LISTENER INICIAL ---
+// Carga inicial del contenido al cargar el DOM.
 document.addEventListener('DOMContentLoaded', () => {
   cargarContenido('vestidos', 'catalogo');
   cargarContenido('trabajos', 'trabajosRealizados');
 });
 
-// --- FUNCIÓN GENERAL PARA CARGAR Y RENDERIZAR CONTENIDO (ESTILO UNIFICADO) ---
+/**
+ * Obtiene y muestra los documentos de una colección de Firestore.
+ * @param {string} tipo - Nombre de la colección ('vestidos' o 'trabajos').
+ * @param {string} contenedorId - ID del elemento del DOM donde se renderizará el contenido.
+ */
 async function cargarContenido(tipo, contenedorId) {
   const contenedorElement = document.getElementById(contenedorId);
   if (!contenedorElement) {
-    console.error(`Error crítico: No se encontró el elemento contenedor #${contenedorId}`);
+    console.error(`Contenedor #${contenedorId} no encontrado.`);
     return;
   }
 
@@ -32,10 +30,10 @@ async function cargarContenido(tipo, contenedorId) {
     const q = query(collRef, orderBy("createdAt", "desc"));
     const querySnapshot = await getDocs(q);
 
+    // Oculta el título del catálogo si no hay vestidos.
     if (querySnapshot.empty) {
-        console.log(`No hay ${tipo} para mostrar.`);
         if (tipo === 'trabajos') {
-            contenedorElement.innerHTML = `<p class="aviso-vacio">Aún no hay trabajos realizados para mostrar.</p>`;
+            contenedorElement.innerHTML = `<p class="aviso-vacio"></p>`;
         } else if (tipo === 'vestidos') {
             const titulo = document.getElementById('tituloCatalogo');
             if(titulo) titulo.style.display = 'none';
@@ -45,6 +43,7 @@ async function cargarContenido(tipo, contenedorId) {
 
     contenedorElement.innerHTML = '';
 
+    // Muestra el título de "Trabajos Realizados" solo si hay documentos.
     if (tipo === 'trabajos' && querySnapshot.size > 0) {
         const tituloTrabajos = document.getElementById('tituloTrabajos');
         if (tituloTrabajos) {
@@ -58,64 +57,92 @@ async function cargarContenido(tipo, contenedorId) {
     }
 
     for (const doc of querySnapshot.docs) {
-        const item = { id: doc.id, ...doc.data() }; // Usamos el ID también por consistencia
-        let imgSrc = 'img/placeholder.png';
+      const item = { id: doc.id, ...doc.data() };
 
-        if (item.fotos && item.fotos.foto1) {
-            try {
-                const rutaRef = ref(storage, item.fotos.foto1);
-                imgSrc = await getDownloadURL(rutaRef);
-            } catch (error) {
-                console.error(`No se pudo obtener la URL de la imagen para la ruta: ${item.fotos.foto1}`, error);
-            }
-        }
-
-        // --- INICIO DE CÓDIGO DE TARJETA UNIFICADO (copiado de admin.js v6.1) ---
+      // Renderiza la tarjeta de producto detallada para la colección 'vestidos'.
+      if (tipo === 'vestidos') {
         const cardDiv = document.createElement('div');
-        cardDiv.className = 'item-card'; // Clase unificada
+        cardDiv.className = 'product-card-detailed';
 
-        const imageDiv = document.createElement('div');
-        imageDiv.className = 'item-image'; // Clase unificada
-        imageDiv.style.backgroundImage = `url('${imgSrc}')`;
-        cardDiv.appendChild(imageDiv);
+        const infoCol = document.createElement('div');
+        infoCol.className = 'info-column';
 
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'item-info'; // Clase unificada
+        const titleElement = document.createElement('h2');
+        titleElement.className = 'product-title';
+        titleElement.textContent = item.nombre || 'Vestido sin nombre';
+        infoCol.appendChild(titleElement);
 
-        const title = item.nombre || item.titulo;
-        const titleElement = document.createElement('h3');
-        titleElement.className = 'item-title'; // Clase unificada
-        titleElement.textContent = title;
-        infoDiv.appendChild(titleElement);
+        const detailsList = document.createElement('ul');
+        detailsList.className = 'details-list';
+        
+        const details = [];
+        if (item.descripcion) details.push(item.descripcion);
+        if (item.talles) details.push(`Talles: ${item.talles}`);
+        if (item.precio) details.push(`Precio: $${item.precio.toLocaleString('es-AR')}`);
 
-        if (tipo === 'vestidos') {
-            const descElement = document.createElement('p');
-            descElement.className = 'item-description'; // Clase unificada
-            descElement.textContent = item.descripcion || '';
-            infoDiv.appendChild(descElement);
+        details.forEach(detailText => {
+            const listItem = document.createElement('li');
+            listItem.textContent = detailText;
+            detailsList.appendChild(listItem);
+        });
+        
+        infoCol.appendChild(detailsList);
+        cardDiv.appendChild(infoCol);
 
-            const detailsDiv = document.createElement('div');
-            detailsDiv.className = 'item-details'; // Clase unificada
-            detailsDiv.innerHTML = `
-                <span class="item-price">Precio: $${item.precio || 'N/A'}</span>
-                <span class="item-sizes">Talles: ${item.talles || 'N/A'}</span>
-            `;
-            infoDiv.appendChild(detailsDiv);
+        const imageCol = document.createElement('div');
+        imageCol.className = 'image-column';
+        
+        const photoPaths = [];
+        if (item.fotos && item.fotos.foto1) photoPaths.push(item.fotos.foto1);
+        if (item.fotos && item.fotos.foto2) photoPaths.push(item.fotos.foto2);
+
+        if (photoPaths.length > 0) {
+          for (const path of photoPaths) {
+            try {
+              const url = await getDownloadURL(ref(storage, path));
+              const imgElement = document.createElement('img');
+              imgElement.src = url;
+              imgElement.alt = `Foto de ${item.nombre}`;
+              imgElement.className = 'product-image';
+              imageCol.appendChild(imgElement);
+            } catch (error) {
+              console.error(`No se pudo cargar la imagen: ${path}`, error);
+            }
+          }
+        } else {
+          const placeholder = document.createElement('img');
+          placeholder.src = 'img/placeholder.png';
+          placeholder.alt = 'Imagen no disponible';
+          placeholder.className = 'product-image';
+          imageCol.appendChild(placeholder);
         }
         
-        // Para los trabajos, solo se muestra el título, lo cual es consistente
-        // con el comportamiento de admin.js (v6.1).
-
-        cardDiv.appendChild(infoDiv);
-
-        // No se agrega el div de 'admin-actions' aquí, que es la única diferencia.
-
+        cardDiv.appendChild(imageCol);
         contenedorElement.appendChild(cardDiv);
-        // --- FIN DE CÓDIGO DE TARJETA UNIFICADO ---
-    }
 
+      } else { // Renderiza una tarjeta simple para la colección 'trabajos'.
+        let imgSrc = 'img/placeholder.png';
+        if (item.fotos && item.fotos.foto1) {
+          try {
+            imgSrc = await getDownloadURL(ref(storage, item.fotos.foto1));
+          } catch (error) {
+            console.error(`Error al cargar imagen de trabajo: ${item.fotos.foto1}`, error);
+          }
+        }
+        
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'item-card';
+        cardDiv.innerHTML = `
+          <div class="item-image" style="background-image: url('${imgSrc}')"></div>
+          <div class="item-info">
+            <h3 class="item-title">${item.titulo || 'Trabajo sin título'}</h3>
+          </div>
+        `;
+        contenedorElement.appendChild(cardDiv);
+      }
+    }
   } catch (error) {
-    console.error(`Error crítico al cargar ${tipo}:`, error);
-    contenedorElement.innerHTML = `<p class="aviso-error">Hubo un problema al cargar el contenido. Intente más tarde.</p>`;
+    console.error(`Error en cargarContenido:`, error);
+    contenedorElement.innerHTML = `<p class="aviso-error">Error al cargar el contenido.</p>`;
   }
 }

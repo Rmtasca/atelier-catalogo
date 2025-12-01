@@ -1,333 +1,161 @@
-/* FONDO GENERAL DEL SITIO*/
+/* --- Estilos Globales --- */
 body {
-  background-image: url("../img/fondo.jpg");     /* Imagen de fondo artesanal */
-  background-size: cover;                        /* Cubre toda la pantalla */
-  background-position: center;                   /* Centrado visualmente */
-  background-repeat: no-repeat;                  /* No se repite */
-  background-attachment: fixed;                  /* Fijo al hacer scroll */
-  font-family: 'Georgia', serif;                 /* Tipografía cálida y elegante */
-}
-/*Boton home*/
-.home-btn-img img {
-  width: 80px; 
-  height: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-/*  TÍTULO CONDICIONAL DEL CATÁLOGO */
-#tituloCatalogo {
-  font-size: 2em;
-  text-align: center;
-  margin: 40px 0 20px;
-  color: #5e4b3c;
+  background-image: url("../img/fondo.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   font-family: 'Georgia', serif;
-  opacity: 0;
-  transform: translateY(-10px);
-  animation: aparecerTitulo 0.6s ease forwards;  /* Animación suave */
+  color: #5e4b3c;
 }
 
-@keyframes aparecerTitulo {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* TARJETAS BASE (Vestidos y Trabajos) */
-.card {
+/* --- Encabezado y Navegación --- */
+.encabezado {
   display: flex;
-  flex-direction: row;
-  gap: 2rem;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 30px;
+  background-color: rgba(255, 250, 246, 0.95);
+  border-bottom: 1px solid #e0d8cf;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.card-image img {
-  max-width: 250px;
-  border-radius: 6px;
+.site-title {
+  font-size: 2.5rem;
+  font-weight: normal;
+  color: #5e4b3c;
+  text-decoration: none;
+  transition: color 0.3s ease;
+  white-space: nowrap;
 }
 
-.card-content {
-  flex: 1;
+.site-title:hover {
+    color: #8c7c6b;
 }
 
-.card-title {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-}
-
-.card-details {
-  list-style: none;
-  padding: 0;
+.encabezado h1 {
+  font-size: 1.6rem;
   margin: 0;
-}
-
-.card-details li {
-  margin-bottom: 0.5rem;
-  font-family: 'Lato', sans-serif;
-  font-size: 1rem;
-}
-
-
-
-/*TARJETAS DE VESTIDOS */
-.vestido h3 {
-  font-size: 1.4em;
-  color: #5e4b3c;
-  margin-bottom: 10px;
-}
-
-.vestido p {
-  margin: 5px 0;
-  color: #6b5b4c;
-}
-
-.vestido .galeria {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.vestido .galeria img {
-  width: 100px;
-  height: auto;
-  border-radius: 6px;
-  object-fit: cover;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-/*TARJETAS DE TRABAJOS REALIZADOS */
-.trabajo h3 {
-  font-size: 1.4em;
-  color: #5e4b3c;
-  margin-bottom: 5px;
-}
-
-.trabajo p {
-  margin: 5px 0;
-  color: #6b5b4c;
-}
-
-.trabajo .galeria {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.trabajo .galeria img {
-  width: 100px;
-  height: auto;
-  border-radius: 6px;
-  object-fit: cover;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.firma-atelier {
-  margin-top: 15px;
-  font-size: 0.9em;
   color: #8c7c6b;
-  text-align: right;
-  font-family: 'Courier New', monospace;         /* Estilo tipo sello  */
 }
 
-/*ÍCONOS FLOTANTES DE CONTACTO */
-#whatsapp-float,
-#Instagram-float,
-#Maps-float {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
+.login-btn,
+.btn-logout {
+  background-color: #f5eadd;
+  color: #8c7c6b;
+  border: 1px solid #d8cfc4;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-family: 'Georgia', serif;
+  cursor: pointer;
+  text-decoration: none; 
+  font-size: 0.9em;
+  transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
-#Instagram-float {
-  margin-bottom: 60px;
+.login-btn:hover,
+.btn-logout:hover {
+  background-color: #fffaf6;
+  border-color: #c0b2a3;
 }
 
-#Maps-float {
-  margin-bottom: 120px;
+/* --- Formularios de Administración --- */
+.container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
 }
 
-#whatsapp-float img,
-#Instagram-float img,
-#Maps-float img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-}
-
-/*FORMULARIOS*/
 .formulario-seccion {
   background-color: rgba(255, 250, 246, 0.9);
   padding: 30px;
-  margin: 40px auto;
-  max-width: 700px;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  font-family: 'Georgia', serif;
+  margin-bottom: 40px;
 }
 
 .formulario-seccion h2 {
   text-align: center;
-  color: #5e4b3c;
+  font-size: 2rem;
+  margin-bottom: 25px;
+}
+
+.form-admin fieldset {
+  border: 1px solid #d8cfc4;
+  border-radius: 8px;
+  padding: 20px;
   margin-bottom: 20px;
 }
 
-.campo {
+.form-admin legend {
+  font-weight: bold;
+  padding: 0 10px;
+  font-size: 1.1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
   margin-bottom: 15px;
   display: flex;
   flex-direction: column;
 }
 
-.campo label {
-  font-weight: bold;
+.form-group label {
   margin-bottom: 5px;
-  color: #6b5b4c;
+  font-size: 0.9rem;
 }
 
-.campo input,
-.campo textarea {
-  padding: 10px;
+.form-group input[type="text"],
+.form-group input[type="number"],
+.form-group textarea {
+  padding: 12px;
   border: 1px solid #d8cfc4;
   border-radius: 8px;
   font-family: 'Georgia', serif;
   background-color: #fffaf6;
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-/*BOTONES DE ACCIÓN */
-.btn-enviar {
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #bda89c;
+  box-shadow: 0 0 5px rgba(189, 168, 156, 0.5);
+}
+
+.form-group input[type="file"] {
+  border: 1px dashed #d8cfc4;
+}
+
+.form-admin button[type="submit"] {
   background-color: #5e4b3c;
   color: white;
-  padding: 12px 20px;
+  padding: 14px 25px;
   border: none;
   border-radius: 8px;
-  font-size: 1em;
+  font-size: 1.1em;
   cursor: pointer;
-  margin-top: 10px;
   transition: background-color 0.3s ease;
 }
 
-.btn-enviar:hover {
+.form-admin button:hover {
   background-color: #7a624d;
 }
 
-/* ESTILO DEL BOTÓN DE CERRAR SESIÓN (NUEVO) */
-.btn-logout {
-  background-color: #f5eadd; /* Un color crema claro, similar al de Home */
-  color: #8c7c6b; /* Un color de texto oscuro y suave */
-  border: 1px solid #d8cfc4; /* Un borde sutil */
-  padding: 10px 15px;
-  border-radius: 8px;
-  font-family: 'Georgia', serif;
-  font-size: 0.9em;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-logout:hover {
-  background-color: #fffaf6; /* Un fondo ligeramente más claro al pasar el ratón */
-  border-color: #c0b2a3;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-
-/*TOOLTIP PERSONALIZADO EN BOTONES*/
-.btn-con-tooltip {
-  position: relative;
-}
-
-.btn-con-tooltip .tooltip {
-  visibility: hidden;
-  background-color: #5e4b3c;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 8px;
-  position: absolute;
-  top: -35px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.8em;
-  white-space: nowrap;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.btn-con-tooltip:hover .tooltip {
-  visibility: visible;
-  opacity: 1;
-}
-
-/* TOOLTIP PERSONALIZADO EN IMÁGENES */
-.imagen-con-tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.imagen-con-tooltip .tooltip {
-  visibility: hidden;
-  background-color: #5e4b3c;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 8px;
-  position: absolute;
-  bottom: 110%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.8em;
-  white-space: nowrap;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.imagen-con-tooltip:hover .tooltip {
-  visibility: visible;
-  opacity: 1;
-}
-
-.descripcion-detallada {
-  background-color: #f9f6f2;
-  border-left: 3px solid #bda89c;
-  padding: 15px;
-  margin: 15px 0;
-  border-radius: 0 8px 8px 0;
-}
-
-.descripcion-detallada p {
-  margin: 8px 0;
-  line-height: 1.6;
-}
-
-.descripcion-detallada p strong {
-  color: #5e4b3c;
-  margin-right: 8px;
-}
-
-/* ======================================================================
-   ESTILOS DEL PANEL DE ADMINISTRACIÓN Y PÁGINA PÚBLICA (UNIFICADOS)
-   ====================================================================== */
-
-/* Contenedor de las listas de ítems */
-#listaVestidos,
-#listaTrabajos {
+/* --- Contenedores y Tarjetas de Items --- */
+.item-container {
     display: grid;
-    /* CORRECCIÓN: Se usa un ancho fijo para las columnas y se centra la grilla */
-    grid-template-columns: repeat(auto-fit, 320px);
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
 }
 
-/* Tarjeta de ítem individual en el panel de admin */
 .item-card {
     background-color: #fffaf6;
     border: 1px solid #e0d8cf;
@@ -336,16 +164,19 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Contenedor de la imagen (con altura proporcional) */
+.item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
 .item-card .item-image {
     width: 100%;
     aspect-ratio: 1 / 1.1;
     background-size: cover;
     background-position: center center;
-    background-repeat: no-repeat;
-    background-color: #f8f4f0;
 }
 
 .item-info {
@@ -353,57 +184,98 @@ body {
 }
 
 .item-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    color: #5e4b3c;
-    margin: 0 0 10px 0;
-}
-
-.item-description {
-    font-size: 0.95rem;
-    color: #6b5b4c;
-    margin-bottom: 15px;
-    line-height: 1.5;
-}
-
-.item-details {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    color: #8c7c6b;
-    border-top: 1px solid #e0d8cf;
-    padding-top: 10px;
+    font-size: 1.4rem;
 }
 
 .admin-actions {
     padding: 10px 15px;
-    background-color: #f9f6f2;
     border-top: 1px solid #e0d8cf;
-    text-align: right;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
 }
 
-.btn-delete {
-    background-color: #c94c4c;
-    color: white;
+.btn-edit, .btn-delete {
     border: none;
-    padding: 8px 15px;
+    padding: 10px 0;
     border-radius: 6px;
     cursor: pointer;
-    font-family: 'Georgia', serif;
-    font-size: 0.9em;
     transition: background-color 0.3s ease;
 }
 
-.btn-delete:hover {
-    background-color: #a83c3c;
+.btn-edit { background-color: #6b8e23; color: white; }
+.btn-edit:hover { background-color: #8a9a5b; }
+.btn-delete { background-color: #c94c4c; color: white; }
+.btn-delete:hover { background-color: #e55a5a; }
+
+/* --- Modales de Edición --- */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Se activa por JS */
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
-.aviso-error, .aviso-vacio {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 40px;
+.modal-content {
     background-color: #fffaf6;
-    border-radius: 10px;
-    color: #8c7c6b;
-    font-size: 1.1em;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 850px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+#current-images-vestido, #current-images-trabajo {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+/* --- Tarjeta Detallada de Producto (Catálogo Público) --- */
+.product-card-detailed {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background-color: #fffaf6;
+  border: 1px solid #000;
+  padding: 25px;
+  margin-bottom: 40px;
+}
+
+.info-column {
+  border-right: 1px solid #000;
+  padding-right: 25px;
+}
+
+.product-title {
+  font-size: 2.5rem;
+  border-bottom: 1px solid #000;
+  margin-bottom: 20px;
+}
+
+.details-list { list-style-type: none; padding: 0; }
+
+.image-column { display: grid; gap: 15px; }
+.product-image { width: 100%; object-fit: cover; }
+
+/* --- Media Queries para Responsividad --- */
+@media (max-width: 768px) {
+  .product-card-detailed { grid-template-columns: 1fr; }
+  .info-column { border-right: none; border-bottom: 1px solid #000; padding-bottom: 25px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .modal-content { padding: 20px; }
+  .site-title { font-size: 2rem; } 
+  .encabezado h1 { font-size: 1.4rem; }
 }

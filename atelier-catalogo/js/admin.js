@@ -1,172 +1,284 @@
-/*
- * ======================================================================
- * ARCHIVO: js/admin.js
- * FUNCIÓN: Controla toda la lógica del panel de administración.
- * ======================================================================
- 
+/**
+ * Lógica del panel de administración para gestionar el contenido de Firestore.
+ */
 
-// 1. Importo todo lo que necesito de Firebase.
-//    - db y storage son mis conexiones a la base de datos y al almacenamiento.
-//    - collection, addDoc, getDocs, query, orderBy son funciones para manejar datos.
-//    - ref, uploadBytes, getDownloadURL son funciones para manejar archivos.
+// Módulos de Firebase para Firestore y Storage.
 import { db, storage } from './firebase.js';
-import { collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
+import { collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
-
-// 2. Espero a que toda la página (el HTML) se haya cargado.
+// Inicializa los listeners y carga los datos iniciales al cargar el DOM.
 document.addEventListener('DOMContentLoaded', () => {
-  // 2.1. Identifico el formulario de vestidos y le digo que, cuando lo envíes, ejecute mi función `handleFormSubmit`.
-  const formVestido = document.getElementById('formVestido');
-  formVestido.addEventListener('submit', (e) => handleFormSubmit(e, 'vestidos'));
-
-  // 2.2. Hago lo mismo para el formulario de trabajos.
-  const formTrabajo = document.getElementById('formTrabajo');
-  formTrabajo.addEventListener('submit', (e) => handleFormSubmit(e, 'trabajos'));
-
-  // 2.3. Apenas carga la página, le pido que traiga y muestre los datos que ya existen.
-  cargarDatos('vestidos');
-  cargarDatos('trabajos');
+    document.getElementById('formVestido').addEventListener('submit', (e) => handleFormSubmit(e, 'vestidos'));
+    document.getElementById('formTrabajo').addEventListener('submit', (e) => handleFormSubmit(e, 'trabajos'));
+    cargarDatos('vestidos');
+    cargarDatos('trabajos');
+    setupModalHandlers();
 });
 
-
-// 3. FUNCIÓN PARA SUBIR IMÁGENES
-//    Esta función es reutilizable: la uso para ambos formularios.
+/**
+ * Sube los archivos de imagen a Firebase Storage.
+ * @param {HTMLFormElement} form - Formulario que contiene los inputs de archivo.
+ * @param {string} tipo - Colección de Firestore ('vestidos' o 'trabajos').
+ * @returns {Promise<Object>} Objeto con las rutas de las imágenes subidas.
+ */
 async function subirImagenes(form, tipo) {
-    // 3.1. Busco todos los campos para subir archivos dentro del formulario que me pasaste.
     const inputs = form.querySelectorAll('input[type=file]');
-    const rutas = {}; // Aquí guardaré las rutas de las imágenes que suba.
+    const rutas = {};
 
-    // 3.2. Reviso cada campo de archivo uno por uno.
-    for (let i = 0; i < inputs.length; i++) {
-        const input = inputs[i];
-        const file = input.files[0]; // Tomo el primer (y único) archivo del campo.
-        const key = `foto${i + 1}`; // Le doy un nombre clave, como "foto1", "foto2", etc.
+    for (const input of inputs) {
+        const file = input.files[0];
+        // Extrae la clave de la foto del ID del input para consistencia.
+        const keyMatch = input.id.match(/foto\d+|trabajo-foto\d+|edit-foto\d+|edit-trabajo-foto\d+/);
+        if (!keyMatch) continue;
+        
+        // Normaliza la clave para la base de datos (ej: 'edit-foto1' -> 'foto1').
+        const key = keyMatch[0].replace('edit-', '').replace('trabajo-', '');
 
-        // 3.3. Si de verdad seleccionaste un archivo...
-        if (file) {
-            // 3.3.1. Creo una ruta única para el archivo en Firebase Storage para evitar que se sobreescriban.
+        if (file && key) {
             const filePath = `images/${tipo}/${Date.now()}_${file.name}`;
             const storageRef = ref(storage, filePath);
-            // 3.3.2. ¡Subo el archivo! `uploadBytes` hace el trabajo pesado.
             await uploadBytes(storageRef, file);
-            // 3.3.3. Guardo la ruta del archivo recién subido en mi objeto de rutas.
             rutas[key] = filePath;
         }
     }
-    // 3.4. Al final, devuelvo el objeto con todas las rutas de las imágenes que subí.
     return rutas;
 }
 
-
-// 4. FUNCIÓN PRINCIPAL QUE MANEJA EL ENVÍO DE CUALQUIER FORMULARIO
+/**
+ * Gestiona el envío de formularios para crear nuevos documentos en Firestore.
+ * @param {Event} event - Evento de submit del formulario.
+ * @param {string} tipo - Colección de Firestore a la que se agregará el documento.
+ */
 async function handleFormSubmit(event, tipo) {
-    event.preventDefault(); // Evito que la página se recargue.
+    event.preventDefault();
     const form = event.target;
     const botonSubmit = form.querySelector('button[type="submit"]');
-    botonSubmit.disabled = true; // Desactivo el botón para que no hagas clic dos veces.
+    botonSubmit.disabled = true;
     botonSubmit.textContent = 'Guardando...';
 
     try {
-        // 4.1. Primero, mando a subir las imágenes usando la función que definí antes.
         const fotosRutas = await subirImagenes(form, tipo);
-
-        // 4.2. Me aseguro de que la foto principal (obligatoria) se haya subido.
         if (Object.keys(fotosRutas).length === 0 && form.querySelector('input[type=file][required]')) {
-            throw new Error('Debes subir al menos la imagen principal.');
+            throw new Error('La imagen principal es obligatoria.');
         }
 
-        // 4.3. Preparo un objeto `data` para guardar en la base de datos Firestore.
-        const data = {
-            fotos: fotosRutas,       // Guardo el objeto con las rutas de las fotos.
-            createdAt: new Date()    // Guardo la fecha y hora actual para poder ordenar después.
-        };
-        
-        // 4.4. Recorro todos los demás campos del formulario (nombre, precio, etc.).
-        const formData = new FormData(form);
-        formData.forEach((value, key) => {
-            if (key !== 'fotos') { // Ignoro los campos de fotos que ya procesé.
-                data[key] = value; // Y agrego el resto (nombre, precio, etc.) a mi objeto `data`.
-            }
-        });
-        
-        // 4.5. Guardo el objeto `data` completo en la colección correcta de Firestore ('vestidos' o 'trabajos').
-        await addDoc(collection(db, tipo), data);
+        const data = { createdAt: new Date(), fotos: fotosRutas };
+        if (tipo === 'vestidos') {
+            data.nombre = form.elements.nombre.value;
+            data.descripcion = form.elements.descripcion.value;
+            data.precio = form.elements.precio.value;
+            data.talles = form.elements.talles.value;
+        } else {
+            data.titulo = form.elements.titulo.value;
+        }
 
-        // 4.6. Si todo salió bien, te aviso, limpio el formulario y recargo la lista.
-        alert(`¡${tipo.slice(0, -1)} agregado con éxito!`);
+        await addDoc(collection(db, tipo), data);
+        alert(`${tipo.slice(0, -1).charAt(0).toUpperCase() + tipo.slice(1, -1)} agregado.` );
         form.reset();
         await cargarDatos(tipo);
-
     } catch (error) {
-        // 4.7. Si algo falla, te muestro el error.
-        console.error(`Error al agregar el ${tipo.slice(0, -1)}:`, error);
+        console.error(`Error en handleFormSubmit:`, error);
         alert(`Error: ${error.message}`);
     } finally {
-        // 4.8. Al final, haya funcionado o no, vuelvo a activar el botón y le pongo su texto original.
         botonSubmit.disabled = false;
-        if (tipo === 'vestidos') {
-            botonSubmit.textContent = 'Agregar Vestido';
-        } else {
-            botonSubmit.textContent = 'Registrar Trabajo';
-        }
+        botonSubmit.textContent = tipo === 'vestidos' ? 'Agregar Vestido' : 'Registrar Trabajo';
     }
 }
 
+/**
+ * Elimina un documento de Firestore y sus imágenes asociadas de Storage.
+ * @param {string} id - ID del documento a eliminar.
+ * @param {string} tipo - Colección a la que pertenece el documento.
+ * @param {Object} fotos - Objeto con las rutas de las imágenes a eliminar.
+ */
+async function handleDelete(id, tipo, fotos) {
+    const itemType = tipo.slice(0, -1);
+    if (!confirm(`¿Confirmas la eliminación de este ${itemType}?`)) return;
 
-// 5. FUNCIÓN PARA CARGAR Y MOSTRAR LOS DATOS DE LA BASE DE DATOS
+    try {
+        if (fotos && typeof fotos === 'object') {
+            const photoPromises = Object.values(fotos).map(filePath => {
+                if (filePath) return deleteObject(ref(storage, filePath)).catch(err => console.warn(err.message));
+                return Promise.resolve();
+            });
+            await Promise.all(photoPromises);
+        }
+
+        await deleteDoc(doc(db, tipo, id));
+        alert(`${itemType.charAt(0).toUpperCase() + itemType.slice(1)} eliminado.`);
+        await cargarDatos(tipo);
+    } catch (error) {
+        console.error(`Error en handleDelete:`, error);
+        alert(`Error al eliminar. Ver la consola.`);
+    }
+}
+
+// Asigna los manejadores de eventos para los modales de edición.
+function setupModalHandlers() {
+    const modals = {
+        vestido: document.getElementById('editModalVestido'),
+        trabajo: document.getElementById('editModalTrabajo')
+    };
+    const closeModal = (modal) => { if (modal) modal.style.display = 'none'; };
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal(overlay);
+    }));
+    document.getElementById('cancelEditVestido').addEventListener('click', () => closeModal(modals.vestido));
+    document.getElementById('cancelEditTrabajo').addEventListener('click', () => closeModal(modals.trabajo));
+
+    document.getElementById('formEditarVestido').addEventListener('submit', (e) => handleEditSubmit(e, 'vestidos'));
+    document.getElementById('formEditarTrabajo').addEventListener('submit', (e) => handleEditSubmit(e, 'trabajos'));
+}
+
+/**
+ * Abre el modal de edición y lo puebla con los datos del documento.
+ * @param {string} id - ID del documento a editar.
+ * @param {string} tipo - Colección a la que pertenece el documento.
+ */
+async function openEditModal(id, tipo) {
+    const modal = document.getElementById(tipo === 'vestidos' ? 'editModalVestido' : 'editModalTrabajo');
+    const form = modal.querySelector('form');
+    form.reset();
+
+    try {
+        const itemSnap = await getDoc(doc(db, tipo, id));
+        if (!itemSnap.exists()) throw new Error("El documento no existe.");
+        const data = itemSnap.data();
+
+        form.elements.id.value = id;
+        if (tipo === 'vestidos') {
+            form.elements['edit-nombre'].value = data.nombre || '';
+            form.elements['edit-descripcion'].value = data.descripcion || '';
+            form.elements['edit-precio'].value = data.precio || '';
+            form.elements['edit-talles'].value = data.talles || '';
+        } else {
+            form.elements['edit-titulo'].value = data.titulo || '';
+        }
+        
+        const imageContainer = form.querySelector(tipo === 'vestidos' ? '#current-images-vestido' : '#current-images-trabajo');
+        imageContainer.innerHTML = '';
+        if (data.fotos) {
+            const imagePromises = Object.keys(data.fotos).map(async key => {
+                try {
+                    const url = await getDownloadURL(ref(storage, data.fotos[key]));
+                    return `<img src="${url}" alt="${key}" style="width: 80px; height: auto; margin-right: 10px; border-radius: 4px;">`;
+                } catch (e) {
+                    console.warn(e.message);
+                    return '';
+                }
+            });
+            imageContainer.innerHTML = (await Promise.all(imagePromises)).join('');
+        }
+        
+        modal.style.display = 'flex';
+    } catch (error) {
+        console.error(`Error en openEditModal:`, error);
+        alert("Error al cargar datos para edición.");
+    }
+}
+
+/**
+ * Gestiona el envío del formulario de edición para actualizar un documento.
+ * @param {Event} event - Evento de submit del formulario.
+ * @param {string} tipo - Colección a la que pertenece el documento.
+ */
+async function handleEditSubmit(event, tipo) {
+    event.preventDefault();
+    const form = event.target;
+    const botonSubmit = form.querySelector('button[type="submit"]');
+    botonSubmit.disabled = true;
+    botonSubmit.textContent = 'Guardando...';
+    const id = form.elements.id.value;
+
+    try {
+        const oldDocSnap = await getDoc(doc(db, tipo, id));
+        const oldData = oldDocSnap.data();
+
+        const nuevasFotosRutas = await subirImagenes(form, tipo);
+        
+        const updatedData = {};
+        if (tipo === 'vestidos') {
+            updatedData.nombre = form.elements['edit-nombre'].value;
+            updatedData.descripcion = form.elements['edit-descripcion'].value;
+            updatedData.precio = form.elements['edit-precio'].value;
+            updatedData.talles = form.elements['edit-talles'].value;
+        } else {
+            updatedData.titulo = form.elements['edit-titulo'].value;
+        }
+
+        updatedData.fotos = { ...oldData.fotos };
+        const oldPathsToDelete = [];
+        for (const key in nuevasFotosRutas) {
+            if (oldData.fotos && oldData.fotos[key]) {
+                oldPathsToDelete.push(oldData.fotos[key]);
+            }
+            updatedData.fotos[key] = nuevasFotosRutas[key];
+        }
+
+        await updateDoc(doc(db, tipo, id), updatedData);
+        
+        const deletePromises = oldPathsToDelete.map(path => deleteObject(ref(storage, path)));
+        await Promise.all(deletePromises);
+
+        alert(`${tipo.slice(0, -1).charAt(0).toUpperCase() + tipo.slice(1, -1)} actualizado.`);
+        document.getElementById(tipo === 'vestidos' ? 'editModalVestido' : 'editModalTrabajo').style.display = 'none';
+        await cargarDatos(tipo);
+    } catch (error) {
+        console.error(`Error en handleEditSubmit:`, error);
+        alert(`Error al actualizar. Ver la consola.`);
+    } finally {
+        botonSubmit.disabled = false;
+        botonSubmit.textContent = 'Guardar Cambios';
+    }
+}
+
+/**
+ * Carga documentos de una colección y los renderiza en el DOM de forma segura.
+ * @param {string} tipo - Colección de Firestore para cargar.
+ */
 async function cargarDatos(tipo) {
-    const listaId = (tipo === 'vestidos') ? 'listaVestidos' : 'listaTrabajos';
-    const listaElement = document.getElementById(listaId);
+    const listaElement = document.getElementById(tipo === 'vestidos' ? 'listaVestidos' : 'listaTrabajos');
+    listaElement.innerHTML = '';
     
     try {
-        // 5.1. Preparo una consulta a la base de datos para pedirle los datos, ordenados por fecha de creación (los más nuevos primero).
-        const collRef = collection(db, tipo);
-        const q = query(collRef, orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q); // Ejecuto la consulta.
+        const q = query(collection(db, tipo), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
         
-        listaElement.innerHTML = ''; // Limpio la lista en la página antes de poner los datos nuevos.
-
-        // 5.2. Si la consulta no devuelve nada, muestro un mensaje.
         if (querySnapshot.empty) {
             listaElement.innerHTML = `<p class="aviso-vacio">No hay ${tipo} para mostrar.</p>`;
             return;
         }
 
-        // 5.3. Recorro cada documento que me devolvió la base de datos.
-        for (const doc of querySnapshot.docs) {
-            const item = { id: doc.id, ...doc.data() };
-            let imgSrc = 'img/placeholder.png'; // Una imagen por defecto por si algo falla.
+        for (const docSnapshot of querySnapshot.docs) {
+            const item = { id: docSnapshot.id, ...docSnapshot.data() };
+            let imgSrc = 'img/placeholder.png';
 
-            // 5.4. Busco la URL de la foto principal en Storage.
             if (item.fotos && item.fotos.foto1) {
                 try {
-                    // Le pido a Firebase Storage la URL pública de la imagen que subí antes.
                     imgSrc = await getDownloadURL(ref(storage, item.fotos.foto1));
                 } catch (e) {
-                    console.error("No pude obtener la URL de la imagen:", item.fotos.foto1, e);
+                    console.error(e.message);
                 }
             }
 
-            // 5.5. Creo la "tarjeta" (el elemento HTML) para mostrar el item.
+            // Construcción segura de elementos del DOM para prevenir XSS.
             const cardDiv = document.createElement('div');
             cardDiv.className = 'item-card';
 
             const imageDiv = document.createElement('div');
             imageDiv.className = 'item-image';
             imageDiv.style.backgroundImage = `url('${imgSrc}')`;
-            cardDiv.appendChild(imageDiv);
 
             const infoDiv = document.createElement('div');
             infoDiv.className = 'item-info';
 
-            const title = item.nombre || item.titulo;
             const titleElement = document.createElement('h3');
             titleElement.className = 'item-title';
-            titleElement.textContent = title;
+            titleElement.textContent = item.nombre || item.titulo;
             infoDiv.appendChild(titleElement);
 
-            // 5.6. Si es un vestido, agrego los detalles de precio y talles.
             if (tipo === 'vestidos') {
                 const descElement = document.createElement('p');
                 descElement.className = 'item-description';
@@ -175,21 +287,45 @@ async function cargarDatos(tipo) {
 
                 const detailsDiv = document.createElement('div');
                 detailsDiv.className = 'item-details';
-                detailsDiv.innerHTML = `
-                    <span class="item-price">Precio: $${item.precio || 'N/A'}</span>
-                    <span class="item-sizes">Talles: ${item.talles || 'N/A'}</span>
-                `;
+                
+                const priceSpan = document.createElement('span');
+                priceSpan.className = 'item-price';
+                priceSpan.textContent = `Precio: $${item.precio || 'N/A'}`;
+
+                const sizesSpan = document.createElement('span');
+                sizesSpan.className = 'item-sizes';
+                sizesSpan.textContent = `Talles: ${item.talles || 'N/A'}`;
+
+                detailsDiv.appendChild(priceSpan);
+                detailsDiv.appendChild(sizesSpan);
                 infoDiv.appendChild(detailsDiv);
             }
-            cardDiv.appendChild(infoDiv);
+            
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'admin-actions';
 
-            // 5.7. Añado la tarjeta recién creada a la sección de la lista en la página.
+            const editButton = document.createElement('button');
+            editButton.className = 'btn-edit';
+            editButton.textContent = 'Editar';
+            editButton.onclick = () => openEditModal(item.id, tipo);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'btn-delete';
+            deleteButton.textContent = 'Eliminar';
+            deleteButton.onclick = () => handleDelete(item.id, tipo, item.fotos);
+
+            actionsDiv.appendChild(editButton);
+            actionsDiv.appendChild(deleteButton);
+
+            cardDiv.appendChild(imageDiv);
+            cardDiv.appendChild(infoDiv);
+            cardDiv.appendChild(actionsDiv);
+            
             listaElement.appendChild(cardDiv);
         }
 
     } catch (error) {
-        // 5.8. Si hay un error grave al cargar los datos, lo muestro en la página y en la consola.
-        console.error(`Error crítico al cargar ${tipo}:`, error);
-        listaElement.innerHTML = `<p class="aviso-error">Error fatal al cargar los datos. Revisa la consola.</p>`;
+        console.error(`Error en cargarDatos:`, error);
+        listaElement.innerHTML = `<p class="aviso-error">Error al cargar datos. Ver la consola.</p>`;
     }
 }

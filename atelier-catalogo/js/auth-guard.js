@@ -1,26 +1,23 @@
-/*
- * ======================================================================
- * ARCHIVO: js/auth-guard.js
- * FUNCIÓN: Actúa como un "portero" o "guardia de seguridad" mejorado.
- * ======================================================================
+/**
+ * Protege las rutas que requieren autenticación.
+ * Redirige a los usuarios no autenticados a la página de login.
  */
 
-// 1. Importo las herramientas necesarias: el servicio `auth` y el vigilante `onAuthStateChanged`.
+// Importa el servicio de autenticación y el observador de estado.
 import { auth } from './firebase.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
 
-// 2. Vigilo el estado de la sesión.
-//    `onAuthStateChanged` es un "oyente" que se activa automáticamente
-//    cuando se carga la página y cada vez que el estado de autenticación cambia.
+/**
+ * Observa los cambios en el estado de autenticación del usuario.
+ * Si el usuario no está autenticado, lo redirige a 'login.html'.
+ * Si el usuario está autenticado, muestra el contenido de la página.
+ */
 onAuthStateChanged(auth, (user) => {
-  // 3. Compruebo si existe un objeto `user`.
   if (!user) {
-    // 4. Si NO hay usuario, te redirijo a la página de login.
-    //    Como el <body> de admin.html está oculto por defecto, el usuario nunca ve el contenido protegido.
+    // Usuario no autenticado: redirigir a la página de login.
     window.location.href = 'login.html';
   } else {
-    // 5. Si SÍ hay usuario, significa que tienes permiso para estar aquí.
-    //    Entonces, hago visible el contenido de la página cambiando el estilo del <body>.
+    // Usuario autenticado: hacer visible el contenido de la página.
     document.body.style.display = 'block';
   }
 });

@@ -17,7 +17,7 @@
         # El comando para iniciar el servidor de vista previa.
         command = [ "npm" "run" "dev" ];
         # El puerto en el que tomara el servidor de vista previa.
-        port = 3001;
+        port = 8001;
       }
     ];
   };

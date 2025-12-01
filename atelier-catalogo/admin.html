@@ -1,69 +1,133 @@
-<!--
-  ======================================================================
-  ARCHIVO: admin.html
-  FUNCIÓN: Esta es tu página de administración.
-  ======================================================================
--->
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- Configuración de metadatos, fuentes y estilos -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Administración</title>
-  <link rel="stylesheet" href="css/styles.css?v=1.3">
-
-  <!--
-    1. ¡LO MÁS IMPORTANTE! Este es el script "guardián".
-       Lo cargo aquí, al principio de todo.
-       Su trabajo es simple: si no has iniciado sesión, te expulsa de esta página.
-       Al cargarlo como "module", me aseguro de que se ejecute antes de que veas nada.
-  -->
-  <script type="module" src="js/auth-guard.js"></script>
-
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" type="image/png" href="img/logoHome.png">
 </head>
-<!--
-  CORRECCIÓN DE SEGURIDAD (FOUC):
-  El `body` empieza con `display: none;` para estar oculto.
-  El script `auth-guard.js` será el encargado de cambiarlo a `display: block;`
-  SOLO si la autenticación es correcta. Esto evita el "parpadeo" de contenido.
--->
-<body style="display: none;">
+<body style="display: none;"> <!-- El cuerpo está oculto hasta que el guardián de autenticación lo valida -->
 
-  <!-- 2. Este es el encabezado de la página. -->
-  <header>
-    <div class="encabezado">
-      <a href="index.html" class="home-btn-img">
-        <img src="img/logoHome.png" alt="Botón Home" />
-      </a>
-      <h1>Catálogo de Vestidos</h1>
-      <!-- 3. He puesto aquí el botón para "Cerrar Sesión". Tiene el id="logoutBtn" para que mi script sepa qué hacer con él. -->
+  <!-- Encabezado principal y botón de cierre de sesión -->
+  <header class="encabezado">
+      <a href="index.html" class="site-title">Noelia Cabrera Studio Atelier</a>
+      <h1>Panel de Administración</h1>
       <button id="logoutBtn" class="btn-logout">Cerrar Sesión</button>
-    </div>
   </header>
 
-  <!-- 4. Aquí empiezan los formularios para que puedas subir y gestionar tu contenido. -->
-  <section class="formulario-seccion">
-    <h2>Vestidos Base</h2>
-    <form id="formVestido">
-      <!-- ... (campos del formulario para vestidos) ... -->
-    </form>
-    <section id="listaVestidos" class="container"></section>
-  </section>
+  <main class="container">
+    <!-- Formulario para agregar nuevos vestidos -->
+    <section class="formulario-seccion">
+      <h2>Agregar Nuevo Vestido</h2>
+      <form id="formVestido" class="form-admin">
+        <div class="form-grid">
+          <div class="form-column-main">
+            <fieldset>
+              <legend>Detalles del Vestido</legend>
+              <div class="form-group"><label for="nombre">Nombre:</label><input type="text" id="nombre" name="nombre" required></div>
+              <div class="form-group"><label for="descripcion">Descripción:</label><textarea id="descripcion" name="descripcion"></textarea></div>
+              <div class="form-group"><label for="precio">Precio (ARS):</label><input type="number" id="precio" name="precio"></div>
+              <div class="form-group"><label for="talles">Talles:</label><input type="text" id="talles" name="talles" placeholder="Ej: S, M, L"></div>
+            </fieldset>
+          </div>
+          <div class="form-column-aside">
+            <fieldset>
+              <legend>Imágenes</legend>
+              <div class="form-group"><label for="foto1">Foto Principal (Requerida)</label><input type="file" id="foto1" name="fotos" accept="image/*" required></div>
+              <div class="form-group"><label for="foto2">Foto Adicional 1</label><input type="file" id="foto2" name="fotos" accept="image/*"></div>
+              <div class="form-group"><label for="foto3">Foto Adicional 2</label><input type="file" id="foto3" name="fotos" accept="image/*"></div>
+            </fieldset>
+            <div class="form-group"><button type="submit">Agregar Vestido</button></div>
+          </div>
+        </div>
+      </form>
+    </section>
 
-  <section class="formulario-seccion">
-    <h2>Registro de Trabajos Realizados</h2>
-    <form id="formTrabajo">
-      <!-- ... (campos del formulario para trabajos) ... -->
-    </form>
-    <div id="listaTrabajos" class="container"></div>
-  </section>
+    <!-- Contenedor para la lista de vestidos cargados desde Firestore -->
+    <div id="listaVestidos" class="item-container"></div>
+    <hr class="section-divider">
 
-  <!--
-    5. Al final, cargo los scripts que le dan funcionalidad a la página.
-       - "admin.js" contiene toda la lógica para manejar los formularios (subir vestidos, trabajos, etc.).
-       - "logout.js" contiene el código específico para que el botón "Cerrar Sesión" funcione.
-       - Ambos son "module" para que puedan usar `import` y `export`.
-  -->
+    <!-- Formulario para agregar nuevos trabajos realizados -->
+    <section class="formulario-seccion">
+      <h2>Registrar Nuevo Trabajo</h2>
+      <form id="formTrabajo" class="form-admin">
+         <fieldset>
+            <legend>Detalles del Trabajo</legend>
+            <div class="form-group"><label for="titulo">Título:</label><input type="text" id="titulo" name="titulo" required></div>
+            <div class="form-group"><label for="trabajo-foto1">Foto (Requerida)</label><input type="file" id="trabajo-foto1" name="fotos" accept="image/*" required></div>
+         </fieldset>
+         <div class="form-group"><button type="submit">Registrar Trabajo</button></div>
+      </form>
+    </section>
+
+    <!-- Contenedor para la lista de trabajos cargados desde Firestore -->
+    <div id="listaTrabajos" class_="item-container"></div>
+  </main>
+
+  <!-- Modal para la edición de vestidos -->
+  <div id="editModalVestido" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Editar Vestido</h2>
+      <form id="formEditarVestido" class="form-admin">
+        <input type="hidden" id="edit-vestido-id" name="id">
+        <div class="form-grid">
+          <div class="form-column-main">
+            <fieldset>
+              <legend>Detalles</legend>
+              <div class="form-group"><label for="edit-nombre">Nombre:</label><input type="text" id="edit-nombre" name="nombre" required></div>
+              <div class="form-group"><label for="edit-descripcion">Descripción:</label><textarea id="edit-descripcion" name="descripcion"></textarea></div>
+              <div class="form-group"><label for="edit-precio">Precio:</label><input type="number" id="edit-precio" name="precio"></div>
+              <div class="form-group"><label for="edit-talles">Talles:</label><input type="text" id="edit-talles" name="talles"></div>
+            </fieldset>
+          </div>
+          <div class="form-column-aside">
+            <fieldset>
+              <legend>Imágenes</legend>
+              <p class="image-note">Subir solo para reemplazar las imágenes existentes.</p>
+              <div id="current-images-vestido"></div> <!-- Contenedor para imágenes actuales -->
+              <div class="form-group"><label for="edit-foto1">Reemplazar Principal</label><input type="file" id="edit-foto1" name="fotos" accept="image/*"></div>
+              <div class="form-group"><label for="edit-foto2">Reemplazar Adicional 1</label><input type="file" id="edit-foto2" name="fotos" accept="image/*"></div>
+              <div class="form-group"><label for="edit-foto3">Reemplazar Adicional 2</label><input type="file" id="edit-foto3" name="fotos" accept="image/*"></div>
+            </fieldset>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="submit">Guardar Cambios</button>
+          <button type="button" id="cancelEditVestido">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal para la edición de trabajos -->
+  <div id="editModalTrabajo" class="modal-overlay">
+    <div class="modal-content">
+      <h2>Editar Trabajo</h2>
+      <form id="formEditarTrabajo" class="form-admin">
+        <input type="hidden" id="edit-trabajo-id" name="id">
+        <fieldset>
+          <legend>Detalles</legend>
+          <div class="form-group"><label for="edit-titulo">Título:</label><input type="text" id="edit-titulo" name="titulo" required></div>
+          <div class="form-group">
+            <label>Foto Actual</label>
+            <div id="current-images-trabajo"></div>
+            <label for="edit-trabajo-foto1" style="margin-top: 10px;">Reemplazar Foto</label>
+            <input type="file" id="edit-trabajo-foto1" name="fotos" accept="image/*">
+          </div>
+        </fieldset>
+        <div class="modal-actions">
+          <button type="submit">Guardar Cambios</button>
+          <button type="button" id="cancelEditTrabajo">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts de la aplicación -->
+  <script src="js/firebase.js" type="module"></script>
+  <script src="js/auth-guard.js" type="module"></script>
   <script src="js/admin.js" type="module"></script>
   <script src="js/logout.js" type="module"></script>
 

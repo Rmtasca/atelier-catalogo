@@ -1,17 +1,13 @@
 {
-  "name": "atelier-catalogo-backend",
+  "name": "noelia",
   "version": "1.0.0",
-  "description": "Backend for the Atelier Catalogo project",
-  "main": "atelier-catalogo/server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node atelier-catalogo/server.js",
-    "dev": "node --watch atelier-catalogo/server.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx serve atelier-catalogo -l 8001"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "express": "^4.18.2",
-    "firebase-admin": "^13.5.0"
-  }
+  "description": ""
 }
