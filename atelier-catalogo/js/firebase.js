@@ -5,32 +5,36 @@
  * ======================================================================
  *
  * Este es el archivo de configuración central. Aquí es donde pones las
- * "llaves" (credenciales) que Firebase te da.
- * Una vez configurado, otros scripts pueden importar la conexión desde aquí
- * sin tener que repetir la configuración en todos lados.
+ * "llaves" (credenciales) que Firebase te da y desde donde se distribuyen
+ * los servicios de Firebase al resto de la aplicación.
  */
 
-// 1. Importo la función para inicializar la conexión desde la librería de Firebase.
+// 1. Importo las funciones para inicializar la conexión y los servicios que voy a usar.
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
-// 2. Aquí pego la configuración que me dio Firebase al crear el proyecto.
-//    Contiene las claves únicas (API Key, etc.) que identifican mi app.
+// 2. Pego la configuración que me proporcionaste desde tu consola de Firebase.
 const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  databaseURL: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyDoZcEzC_vqYtMdYtngzN_f8vTDuAs68Yg",
+  authDomain: "atelier-catalogo.firebaseapp.com",
+  projectId: "atelier-catalogo",
+  storageBucket: "atelier-catalogo.appspot.com", // Corregido: el bucket no debe tener ".firebasestorage" en la config.
+  messagingSenderId: "112874676163",
+  appId: "1:112874676163:web:ad7a7140243d91ee452776",
+  measurementId: "G-8FGWHB6N95"
 };
 
-// 3. Inicializo la aplicación de Firebase con mi configuración.
-//    Esto crea la conexión principal que usarán todos los demás servicios (autenticación, base de datos, etc.).
+// 3. Inicializo la aplicación de Firebase con la configuración.
 const app = initializeApp(firebaseConfig);
 
-// 4. ¡MUY IMPORTANTE! Exporto la conexión inicializada.
-//    Esto permite que otros archivos (como auth.js, auth-guard.js, etc.)
-//    puedan simplemente importarla y usarla directamente, asegurando que todos
-//    usen la misma y única conexión a Firebase.
-export const firebaseApp = app;
+// 4. Obtengo las referencias a los servicios que necesito y los preparo para ser usados.
+const auth = getAuth(app);         // Servicio de Autenticación
+const db = getFirestore(app);      // Base de datos (Firestore)
+const storage = getStorage(app);   // Almacenamiento de archivos (Storage)
+
+// 5. ¡MUY IMPORTANTE! Exporto los servicios inicializados.
+//    Esto permite que otros archivos (como auth.js, admin.js, etc.)
+//    puedan simplemente importarlos y usarlos directamente.
+export { app, auth, db, storage };
