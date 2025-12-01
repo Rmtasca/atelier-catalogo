@@ -26,16 +26,13 @@ async function subirImagenes(form, tipo) {
     const inputs = form.querySelectorAll('input[type=file]');
     const rutas = {};
 
-    for (const input of inputs) {
+    for (let i = 0; i < inputs.length; i++) {
+        const input = inputs[i];
         const file = input.files[0];
-        // Extrae la clave de la foto del ID del input para consistencia.
-        const keyMatch = input.id.match(/foto\d+|trabajo-foto\d+|edit-foto\d+|edit-trabajo-foto\d+/);
-        if (!keyMatch) continue;
-        
-        // Normaliza la clave para la base de datos (ej: 'edit-foto1' -> 'foto1').
-        const key = keyMatch[0].replace('edit-', '').replace('trabajo-', '');
+        // Normaliza la clave para la base de datos (ej: 'trabajo-foto1' -> 'foto1').
+        const key = `foto${i + 1}`;
 
-        if (file && key) {
+        if (file) {
             const filePath = `images/${tipo}/${Date.now()}_${file.name}`;
             const storageRef = ref(storage, filePath);
             await uploadBytes(storageRef, file);
@@ -44,6 +41,7 @@ async function subirImagenes(form, tipo) {
     }
     return rutas;
 }
+
 
 /**
  * Gestiona el envío de formularios para crear nuevos documentos en Firestore.
@@ -74,7 +72,7 @@ async function handleFormSubmit(event, tipo) {
         }
 
         await addDoc(collection(db, tipo), data);
-        alert(`${tipo.slice(0, -1).charAt(0).toUpperCase() + tipo.slice(1, -1)} agregado.` );
+        alert(`${tipo.slice(0, -1).charAt(0).toUpperCase() + tipo.slice(1, -1)} agregado.`);
         form.reset();
         await cargarDatos(tipo);
     } catch (error) {
@@ -160,7 +158,7 @@ async function openEditModal(id, tipo) {
         const imageContainer = form.querySelector(tipo === 'vestidos' ? '#current-images-vestido' : '#current-images-trabajo');
         imageContainer.innerHTML = '';
         if (data.fotos) {
-            const imagePromises = Object.keys(data.fotos).map(async key => {
+            const imagePromises = Object.keys(data.fotos).sort().map(async key => {
                 try {
                     const url = await getDownloadURL(ref(storage, data.fotos[key]));
                     return `<img src="${url}" alt="${key}" style="width: 80px; height: auto; margin-right: 10px; border-radius: 4px;">`;
@@ -178,6 +176,7 @@ async function openEditModal(id, tipo) {
         alert("Error al cargar datos para edición.");
     }
 }
+
 
 /**
  * Gestiona el envío del formulario de edición para actualizar un documento.
@@ -253,23 +252,34 @@ async function cargarDatos(tipo) {
 
         for (const docSnapshot of querySnapshot.docs) {
             const item = { id: docSnapshot.id, ...docSnapshot.data() };
-            let imgSrc = 'img/placeholder.png';
-
-            if (item.fotos && item.fotos.foto1) {
-                try {
-                    imgSrc = await getDownloadURL(ref(storage, item.fotos.foto1));
-                } catch (e) {
-                    console.error(e.message);
-                }
-            }
-
-            // Construcción segura de elementos del DOM para prevenir XSS.
             const cardDiv = document.createElement('div');
             cardDiv.className = 'item-card';
 
-            const imageDiv = document.createElement('div');
-            imageDiv.className = 'item-image';
-            imageDiv.style.backgroundImage = `url('${imgSrc}')`;
+            const imageContainer = document.createElement('div');
+            if (tipo === 'trabajos') {
+                imageContainer.className = 'item-images-container';
+                if (item.fotos) {
+                    const photoPromises = Object.keys(item.fotos).sort().map(key => getDownloadURL(ref(storage, item.fotos[key])));
+                    const urls = await Promise.all(photoPromises);
+                    urls.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = 'item-image-multi';
+                        imageContainer.appendChild(img);
+                    });
+                }
+            } else {
+                imageContainer.className = 'item-image';
+                let imgSrc = 'img/placeholder.png';
+                if (item.fotos && item.fotos.foto1) {
+                    try {
+                        imgSrc = await getDownloadURL(ref(storage, item.fotos.foto1));
+                    } catch (e) {
+                        console.error(e.message);
+                    }
+                }
+                imageContainer.style.backgroundImage = `url('${imgSrc}')`;
+            }
 
             const infoDiv = document.createElement('div');
             infoDiv.className = 'item-info';
@@ -317,7 +327,7 @@ async function cargarDatos(tipo) {
             actionsDiv.appendChild(editButton);
             actionsDiv.appendChild(deleteButton);
 
-            cardDiv.appendChild(imageDiv);
+            cardDiv.appendChild(imageContainer);
             cardDiv.appendChild(infoDiv);
             cardDiv.appendChild(actionsDiv);
             

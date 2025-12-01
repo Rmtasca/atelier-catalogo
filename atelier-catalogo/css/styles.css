@@ -179,6 +179,20 @@ body {
     background-position: center center;
 }
 
+.item-images-container {
+  display: flex;
+  flex-direction: row;
+  overflow-x: auto;
+}
+
+.item-image-multi {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1.1;
+  object-fit: cover;
+}
+
+
 .item-info {
     padding: 15px;
 }

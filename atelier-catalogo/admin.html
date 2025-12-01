@@ -53,17 +53,28 @@
     <section class="formulario-seccion">
       <h2>Registrar Nuevo Trabajo</h2>
       <form id="formTrabajo" class="form-admin">
-         <fieldset>
-            <legend>Detalles del Trabajo</legend>
-            <div class="form-group"><label for="titulo">Título:</label><input type="text" id="titulo" name="titulo" required></div>
-            <div class="form-group"><label for="trabajo-foto1">Foto (Requerida)</label><input type="file" id="trabajo-foto1" name="fotos" accept="image/*" required></div>
-         </fieldset>
-         <div class="form-group"><button type="submit">Registrar Trabajo</button></div>
+        <div class="form-grid">
+          <div class="form-column-main">
+            <fieldset>
+              <legend>Detalles del Trabajo</legend>
+              <div class="form-group"><label for="titulo">Título:</label><input type="text" id="titulo" name="titulo" required></div>
+            </fieldset>
+          </div>
+          <div class="form-column-aside">
+            <fieldset>
+              <legend>Imágenes</legend>
+              <div class="form-group"><label for="trabajo-foto1">Foto Principal (Requerida)</label><input type="file" id="trabajo-foto1" name="fotos" accept="image/*" required></div>
+              <div class="form-group"><label for="trabajo-foto2">Foto Adicional 1</label><input type="file" id="trabajo-foto2" name="fotos" accept="image/*"></div>
+              <div class="form-group"><label for="trabajo-foto3">Foto Adicional 2</label><input type="file" id="trabajo-foto3" name="fotos" accept="image/*"></div>
+            </fieldset>
+          </div>
+        </div>
+        <div class="form-group"><button type="submit">Registrar Trabajo</button></div>
       </form>
     </section>
 
     <!-- Contenedor para la lista de trabajos cargados desde Firestore -->
-    <div id="listaTrabajos" class_="item-container"></div>
+    <div id="listaTrabajos" class="item-container"></div>
   </main>
 
   <!-- Modal para la edición de vestidos -->
@@ -111,10 +122,14 @@
           <legend>Detalles</legend>
           <div class="form-group"><label for="edit-titulo">Título:</label><input type="text" id="edit-titulo" name="titulo" required></div>
           <div class="form-group">
-            <label>Foto Actual</label>
+            <label>Fotos Actuales</label>
             <div id="current-images-trabajo"></div>
-            <label for="edit-trabajo-foto1" style="margin-top: 10px;">Reemplazar Foto</label>
+            <label for="edit-trabajo-foto1" style="margin-top: 10px;">Reemplazar Foto Principal</label>
             <input type="file" id="edit-trabajo-foto1" name="fotos" accept="image/*">
+            <label for="edit-trabajo-foto2" style="margin-top: 10px;">Reemplazar Foto Adicional 1</label>
+            <input type="file" id="edit-trabajo-foto2" name="fotos" accept="image/*">
+            <label for="edit-trabajo-foto3" style="margin-top: 10px;">Reemplazar Foto Adicional 2</label>
+            <input type="file" id="edit-trabajo-foto3" name="fotos" accept="image/*">
           </div>
         </fieldset>
         <div class="modal-actions">
