@@ -293,3 +293,33 @@ body {
   .site-title { font-size: 2rem; } 
   .encabezado h1 { font-size: 1.4rem; }
 }
+
+
+/* TOOLTIP PERSONALIZADO EN IMÁGENES */
+.imagen-con-tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.imagen-con-tooltip .tooltip {
+  visibility: hidden;
+  background-color: #5e4b3c;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 8px;
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.8em;
+  white-space: nowrap;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.imagen-con-tooltip:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
