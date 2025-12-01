@@ -100,11 +100,25 @@ async function cargarContenido(tipo, contenedorId) {
           for (const path of photoPaths) {
             try {
               const url = await getDownloadURL(ref(storage, path));
+              
+              // --- INICIO DE CAMBIO PARA TOOLTIP ---
+              const tooltipWrapper = document.createElement('div');
+              tooltipWrapper.className = 'imagen-con-tooltip';
+
               const imgElement = document.createElement('img');
               imgElement.src = url;
               imgElement.alt = `Foto de ${item.nombre}`;
               imgElement.className = 'product-image';
-              imageCol.appendChild(imgElement);
+              
+              const tooltipSpan = document.createElement('span');
+              tooltipSpan.className = 'tooltip';
+              tooltipSpan.textContent = item.nombre || 'Vestido';
+
+              tooltipWrapper.appendChild(imgElement);
+              tooltipWrapper.appendChild(tooltipSpan);
+              imageCol.appendChild(tooltipWrapper);
+              // --- FIN DE CAMBIO PARA TOOLTIP ---
+
             } catch (error) {
               console.error(`No se pudo cargar la imagen: ${path}`, error);
             }
@@ -132,12 +146,17 @@ async function cargarContenido(tipo, contenedorId) {
         
         const cardDiv = document.createElement('div');
         cardDiv.className = 'item-card';
+
+        // --- INICIO DE CAMBIO PARA TOOLTIP ---
         cardDiv.innerHTML = `
-          <div class="item-image" style="background-image: url('${imgSrc}')"></div>
+          <div class="item-image imagen-con-tooltip" style="background-image: url('${imgSrc}')">
+            <span class="tooltip">${item.titulo || 'Trabajo realizado'}</span>
+          </div>
           <div class="item-info">
             <h3 class="item-title">${item.titulo || 'Trabajo sin título'}</h3>
           </div>
         `;
+        // --- FIN DE CAMBIO PARA TOOLTIP ---
         contenedorElement.appendChild(cardDiv);
       }
     }
