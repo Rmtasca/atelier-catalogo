@@ -217,6 +217,26 @@ body {
   background-color: #7a624d;
 }
 
+/* ESTILO DEL BOTÓN DE CERRAR SESIÓN (NUEVO) */
+.btn-logout {
+  background-color: #f5eadd; /* Un color crema claro, similar al de Home */
+  color: #8c7c6b; /* Un color de texto oscuro y suave */
+  border: 1px solid #d8cfc4; /* Un borde sutil */
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-family: 'Georgia', serif;
+  font-size: 0.9em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-logout:hover {
+  background-color: #fffaf6; /* Un fondo ligeramente más claro al pasar el ratón */
+  border-color: #c0b2a3;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+
 /*TOOLTIP PERSONALIZADO EN BOTONES*/
 .btn-con-tooltip {
   position: relative;
@@ -290,4 +310,100 @@ body {
 .descripcion-detallada p strong {
   color: #5e4b3c;
   margin-right: 8px;
+}
+
+/* ======================================================================
+   ESTILOS DEL PANEL DE ADMINISTRACIÓN Y PÁGINA PÚBLICA (UNIFICADOS)
+   ====================================================================== */
+
+/* Contenedor de las listas de ítems */
+#listaVestidos,
+#listaTrabajos {
+    display: grid;
+    /* CORRECCIÓN: Se usa un ancho fijo para las columnas y se centra la grilla */
+    grid-template-columns: repeat(auto-fit, 320px);
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Tarjeta de ítem individual en el panel de admin */
+.item-card {
+    background-color: #fffaf6;
+    border: 1px solid #e0d8cf;
+    border-radius: 10px;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Contenedor de la imagen (con altura proporcional) */
+.item-card .item-image {
+    width: 100%;
+    aspect-ratio: 1 / 1.1;
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-color: #f8f4f0;
+}
+
+.item-info {
+    padding: 15px;
+}
+
+.item-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: #5e4b3c;
+    margin: 0 0 10px 0;
+}
+
+.item-description {
+    font-size: 0.95rem;
+    color: #6b5b4c;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.item-details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #8c7c6b;
+    border-top: 1px solid #e0d8cf;
+    padding-top: 10px;
+}
+
+.admin-actions {
+    padding: 10px 15px;
+    background-color: #f9f6f2;
+    border-top: 1px solid #e0d8cf;
+    text-align: right;
+}
+
+.btn-delete {
+    background-color: #c94c4c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: 'Georgia', serif;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.btn-delete:hover {
+    background-color: #a83c3c;
+}
+
+.aviso-error, .aviso-vacio {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    background-color: #fffaf6;
+    border-radius: 10px;
+    color: #8c7c6b;
+    font-size: 1.1em;
 }

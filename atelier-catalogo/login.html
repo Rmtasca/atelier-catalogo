@@ -1,24 +1,49 @@
+<!--
+  ======================================================================
+  ARCHIVO: login.html
+  FUNCIÓN: Esta es la página donde inicias sesión como administrador.
+  ======================================================================
+-->
 <!DOCTYPE html>
 <html lang="es">
-    <!--Estructura para el inicio de session-->
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login Admin</title>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+
   <header>
-  <div class="encabezado">
-    <a href="index.html" class="home-btn">🏠 Inicio</a>
-    <h1>Catálogo de Vestidos</h1>
-  </div>
-</header>
+    <div class="encabezado">
+      <a href="index.html" class="home-btn">🏠 Inicio</a>
+      <h1>Catálogo de Vestidos</h1>
+    </div>
+  </header>
+
   <h2>Acceso de Administrador</h2>
+
+  <!-- 1. Este es tu formulario para entrar. Le pongo el id="loginForm" para que mi código JavaScript sepa a quién escuchar. -->
   <form id="loginForm">
-    <input type="text" id="username" placeholder="Usuario" required>
+    
+    <!-- 2. Te pido tu correo y contraseña. Los marco como "email" y "password" para que el navegador te ayude a llenarlos. -->
+    <input type="email" id="email" placeholder="Correo Electrónico" required>
     <input type="password" id="password" placeholder="Contraseña" required>
     <button type="submit">Ingresar</button>
   </form>
-  <script src="js/auth.js"></script>
+
+  <!-- 3. Dejo este párrafo vacío aquí. Lo usaré para mostrarte un mensaje si te equivocas al ingresar. -->
+  <p id="error-message" style="color: red; text-align: center; margin-top: 10px;"></p>
+
+  <!-- 
+    4. Aquí cargo los scripts necesarios.
+       - Los dos primeros son las librerías generales de Firebase que me dan la funcionalidad básica.
+       - El último, "auth.js", es el script que yo escribí para que este formulario funcione de verdad.
+       - Lo cargo como "module" porque usa la sintaxis moderna de `import` y `export`.
+  -->
+  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/12.6.0/firebase-auth.js"></script>
+  <script type="module" src="js/auth.js"></script>
+
 </body>
 </html>

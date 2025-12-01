@@ -1,67 +1,29 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Noelia Cabrera Studio Atelier</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
 
-  <!-- Encabezado principal del sitio -->
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Noelia Cabrera</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
   <header>
     <div class="encabezado">
-      <h1>Noelia Cabrera Studio Atelier</h1>
-      <a href="login.html" class="login-btn">👤</a>
+      <a href="index.html" class="home-btn-img">
+        <img src="img/logoHome.png" alt="Botón Home" />
+      </a>
+      <h1>Catálogo de Vestidos</h1>
+      <a href="login.html" class="login-btn">Login</a>
     </div>
   </header>
 
-  <!-- Título condicional del catálogo, oculto por defecto -->
-  <h2 id="tituloCatalogo" style="display: none;">Catálogo</h2>
+  <h2 id="tituloCatalogo">Vestidos Base</h2>
+  <main id="catalogo" class="container"></main>
+  <div id="trabajosRealizados" class="container"></div>
 
-  <!-- Dirección del atelier -->
-  <div class="contacto">
-    <p>Belgrano 237 Depto 1</p>
-  </div>
-
-  <!-- Contenedor para vestidos -->
-  <main id="catalogo"></main>
-
-  <!-- Contenedor para trabajos realizados -->
-  <div id="trabajosRealizados"></div>
-
- <!--  WhatsApp flotante con tooltip -->
-<div id="whatsapp-float" class="imagen-con-tooltip">
-  <a href="https://wa.me/5492241560406" target="_blank" rel="noopener noreferrer">
-    <img src="img/whatsappLogo.png" alt="WhatsApp" />
-    <span class="tooltip">Enviar mensaje por WhatsApp</span>
-  </a>
-</div>
-
-<!--  Instagram flotante con tooltip -->
-<div id="Instagram-float" class="imagen-con-tooltip">
-  <a href="https://www.instagram.com/noeliacabrera.modista" target="_blank" rel="noopener noreferrer">
-    <img src="img/instagramLogo.png" alt="Instagram" />
-    <span class="tooltip">Ver perfil en Instagram</span>
-  </a>
-</div>
-
-<!--  Maps flotante con tooltip -->
-<div id="Maps-float" class="imagen-con-tooltip">
-  <a href="https://www.google.com/maps/place/Belgrano+237,+Chascomús,+Buenos+Aires" target="_blank" rel="noopener noreferrer">
-    <img src="img/ubicacionlogo.png" alt="Ubicación" />
-    <span class="tooltip">Ver ubicación en Google Maps</span>
-  </a>
-</div>
-
-
-  <!-- Script único para renderizar catálogo y trabajos -->
-  <script src="/js/catalog.js"></script>
+  <script src="js/catalog.js" type="module"></script>
 </body>
+
 </html>
-
-
-
-
-
-
-
