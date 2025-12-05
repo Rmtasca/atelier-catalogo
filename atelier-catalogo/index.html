@@ -1,32 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <!-- Configuración de metadatos y enlaces a recursos -->
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Noelia Cabrera - Catálogo</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <link rel="icon" type="image/png" href="img/logoHome.png">
+  <title>Noelia Cabrera Studio Atelier</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="img/logoHome.png">
 </head>
-
 <body>
-  <!-- Encabezado principal con navegación -->
-  <header>
-    <div class="encabezado">
-      <a href="index.html" class="site-title">Noelia Cabrera Studio Atelier</a>
-      <h1>Catálogo de Vestidos</h1>
-      <a href="login.html" class="login-btn">Login</a>
+
+  <header class="encabezado">
+    <a href="index.html" class="site-title">Noelia Cabrera Studio Atelier</a>
+    <div class="header-login">
+      <a href="login.html">
+        <img src="img/Login.png" alt="Admin Login" class="login-icon-img">
+        <span class="tooltip-header">Admin Login</span>
+      </a>
     </div>
   </header>
 
-  <!-- Contenedor principal para el contenido dinámico -->
-  <h2 id="tituloCatalogo">Vestidos Base</h2>
-  <main id="catalogo" class="container"></main>
-  <div id="trabajosRealizados" class="container item-container"></div>
+  <main class="container">
+    <h1 id="tituloCatalogo">Vestidos Base</h1>
+    <div id="catalogo" class="item-container"></div>
 
-  <!-- Script para cargar el catálogo de productos -->
-  <script src="js/catalog.js" type="module"></script>
+    <h2 id="tituloTrabajos">Trabajos Realizados</h2>
+    <div id="trabajosRealizados" class="item-container"></div>
+  </main>
+
+  <div id="image-modal" class="modal-overlay">
+    <span class="modal-close">&times;</span>
+    <img class="modal-content-image" id="modal-image">
+  </div>
+
+  <script type="module" src="js/catalog.js"></script>
+
+
+ <!--  WhatsApp flotante con tooltip -->
+ <div id="whatsapp-float" class="imagen-con-tooltip">
+  <a href="https://wa.me/5492241560406" target="_blank" rel="noopener noreferrer">
+    <img src="img/whatsappLogo.png" alt="WhatsApp" />
+    <span class="tooltip">Enviar mensaje por WhatsApp</span>
+  </a>
+</div>
+
+<!--  Instagram flotante con tooltip -->
+<div id="Instagram-float" class="imagen-con-tooltip">
+  <a href="https://www.instagram.com/noeliacabrera.modista" target="_blank" rel="noopener noreferrer">
+    <img src="img/instagramLogo.png" alt="Instagram" />
+    <span class="tooltip">Ver perfil en Instagram</span>
+  </a>
+</div>
+
+<!--  Maps flotante con tooltip -->
+<div id="Maps-float" class="imagen-con-tooltip">
+  <a href="https://www.google.com/maps/place/Belgrano+237,+Chascomús,+Buenos+Aires" target="_blank" rel="noopener noreferrer">
+    <img src="img/ubicacionlogo.png" alt="Ubicación" />
+    <span class="tooltip">Ver ubicación en Google Maps</span>
+  </a>
+</div>
+
 </body>
-
 </html>

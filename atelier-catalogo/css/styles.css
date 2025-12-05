@@ -33,293 +33,512 @@ body {
     color: #8c7c6b;
 }
 
-.encabezado h1 {
-  font-size: 1.6rem;
-  margin: 0;
-  color: #8c7c6b;
+/* --- Login Icon --- */
+.header-login {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.login-btn,
-.btn-logout {
-  background-color: #f5eadd;
-  color: #8c7c6b;
-  border: 1px solid #d8cfc4;
-  padding: 10px 15px;
-  border-radius: 8px;
-  font-family: 'Georgia', serif;
-  cursor: pointer;
-  text-decoration: none; 
-  font-size: 0.9em;
-  transition: all 0.3s ease;
+.login-icon-img {
+  width: 95px;
+  height: 95px;
+  transition: transform 0.3s ease;
+}
+
+.header-login a:hover .login-icon-img {
+  transform: scale(1.1);
+}
+
+.tooltip-header {
+  visibility: hidden;
+  background-color: #5e4b3c;
+  color: #fffaf6;
+  text-align: center;
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
   white-space: nowrap;
 }
 
-.login-btn:hover,
-.btn-logout:hover {
-  background-color: #fffaf6;
-  border-color: #c0b2a3;
+.tooltip-header::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent #5e4b3c transparent;
 }
 
-/* --- Formularios de Administración --- */
+.header-login a:hover .tooltip-header {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* --- Contenedor Principal --- */
 .container {
-  max-width: 900px;
+  max-width: 1400px;
   margin: 40px auto;
   padding: 0 20px;
 }
 
-.formulario-seccion {
-  background-color: rgba(255, 250, 246, 0.9);
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  margin-bottom: 40px;
-}
-
-.formulario-seccion h2 {
-  text-align: center;
-  font-size: 2rem;
-  margin-bottom: 25px;
-}
-
-.form-admin fieldset {
-  border: 1px solid #d8cfc4;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.form-admin legend {
-  font-weight: bold;
-  padding: 0 10px;
-  font-size: 1.1rem;
-}
-
-.form-grid {
+/* --- Estilos de Tarjetas Públicas Unificadas --- */
+.product-card-detailed {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
+  grid-template-columns: 380px auto;
+  gap: 25px;
+  background-color: #fffaf6;
+  border: 1px solid #e0d8cf;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 12px;
+  align-items: flex-start; /* Alinea los items al inicio */
 }
 
-.form-group {
-  margin-bottom: 15px;
+.info-column {
+  border-right: 1px solid #e0d8cf;
+  padding-right: 25px;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start; /* Alinea el contenido al inicio por defecto */
 }
 
-.form-group label {
-  margin-bottom: 5px;
-  font-size: 0.9rem;
+/* En la vista de admin, se separan los elementos para dejar los botones abajo */
+.admin-card-view .info-column {
+  justify-content: space-between;
 }
 
-.form-group input[type="text"],
-.form-group input[type="number"],
-.form-group textarea {
-  padding: 12px;
-  border: 1px solid #d8cfc4;
-  border-radius: 8px;
-  font-family: 'Georgia', serif;
-  background-color: #fffaf6;
-  transition: border-color 0.3s, box-shadow 0.3s;
+.product-card-detailed .product-title {
+  font-size: 2rem;
+  border-bottom: 1px solid #d8cfc4;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  text-align: left;
 }
 
-.form-group input:focus,
-.form-group textarea:focus {
-  outline: none;
-  border-color: #bda89c;
-  box-shadow: 0 0 5px rgba(189, 168, 156, 0.5);
+.product-card-detailed .details-list {
+  list-style-type: none;
+  padding: 0;
+  text-align: left;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #6d5f53;
 }
 
-.form-group input[type="file"] {
-  border: 1px dashed #d8cfc4;
+.details-list li {
+    margin-bottom: 10px;
+    white-space: pre-wrap; /* Respeta los saltos de línea y espacios */
 }
 
-.form-admin button[type="submit"] {
-  background-color: #5e4b3c;
-  color: white;
-  padding: 14px 25px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1em;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.image-column {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 10px;
+  align-items: center;
 }
 
-.form-admin button:hover {
-  background-color: #7a624d;
-}
-
-/* --- Contenedores y Tarjetas de Items --- */
-.item-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
-    padding: 20px 0;
-}
-
-.item-card {
-    background-color: #fffaf6;
-    border: 1px solid #e0d8cf;
-    border-radius: 10px;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.06);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.item-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-}
-
-.item-card .item-image {
-    width: 100%;
-    aspect-ratio: 1 / 1.1;
-    background-size: cover;
-    background-position: center center;
-}
-
-.item-images-container {
-  display: flex;
-  flex-direction: row;
-  overflow-x: auto;
-}
-
-.item-image-multi {
+.product-image {
   width: 100%;
+  max-height: 480px;
   height: auto;
-  aspect-ratio: 1 / 1.1;
-  object-fit: cover;
+  object-fit: contain;
+  cursor: zoom-in;
+  border-radius: 6px;
 }
 
-
-.item-info {
-    padding: 15px;
-}
-
-.item-title {
-    font-size: 1.4rem;
-}
-
-.admin-actions {
-    padding: 10px 15px;
-    border-top: 1px solid #e0d8cf;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.btn-edit, .btn-delete {
-    border: none;
-    padding: 10px 0;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btn-edit { background-color: #6b8e23; color: white; }
-.btn-edit:hover { background-color: #8a9a5b; }
-.btn-delete { background-color: #c94c4c; color: white; }
-.btn-delete:hover { background-color: #e55a5a; }
-
-/* --- Modales de Edición --- */
+/* --- Modales Públicos --- */
 .modal-overlay {
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: none; /* Se activa por JS */
+    background-color: rgba(0, 0, 0, 0.85);
+    display: none; 
     align-items: center;
     justify-content: center;
     z-index: 1000;
+    padding: 20px;
 }
 
-.modal-content {
-    background-color: #fffaf6;
-    padding: 30px;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 850px;
-    max-height: 90vh;
-    overflow-y: auto;
+.modal-content-image {
+    margin: auto;
+    display: block;
+    max-width: 90%;
+    max-height: 90%;
 }
 
-#current-images-vestido, #current-images-trabajo {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+    cursor: pointer;
 }
 
-.modal-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-top: 25px;
+/* ===================================== */
+/* --- Media Queries para Responsive --- */
+/* ===================================== */
+
+/* --- Tablets y pantallas medianas --- */
+@media (max-width: 1024px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* --- Tarjeta Detallada de Producto (Catálogo Público) --- */
-.product-card-detailed {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  background-color: #fffaf6;
-  border: 1px solid #000;
-  padding: 25px;
-  margin-bottom: 40px;
+/* --- Tablets pequeñas y móviles grandes --- */
+@media (max-width: 900px) {
+  .product-card-detailed { 
+    grid-template-columns: 1fr; 
+    min-height: 0;
+  }
+  .info-column { 
+    border-right: none; 
+    border-bottom: 1px solid #e0d8cf; 
+    padding: 0 0 25px 0;
+    height: auto;
+  }
+  .image-column {
+    height: auto;
+  }
 }
 
-.info-column {
-  border-right: 1px solid #000;
-  padding-right: 25px;
-}
-
-.product-title {
-  font-size: 2.5rem;
-  border-bottom: 1px solid #000;
-  margin-bottom: 20px;
-}
-
-.details-list { list-style-type: none; padding: 0; }
-
-.image-column { display: grid; gap: 15px; }
-.product-image { width: 100%; object-fit: cover; }
-
-/* --- Media Queries para Responsividad --- */
+/* --- Móviles --- */
 @media (max-width: 768px) {
-  .product-card-detailed { grid-template-columns: 1fr; }
-  .info-column { border-right: none; border-bottom: 1px solid #000; padding-bottom: 25px; }
-  .form-grid { grid-template-columns: 1fr; }
-  .modal-content { padding: 20px; }
-  .site-title { font-size: 2rem; } 
-  .encabezado h1 { font-size: 1.4rem; }
+  .encabezado {
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .encabezado h1 {
+      font-size: 1.5rem;
+      margin: 0;
+  }
+
+  .site-title { 
+    font-size: 2rem;
+  } 
+
+  .container {
+      margin: 20px auto;
+      padding: 0 15px;
+  }
+
+  .formulario-seccion, .lista-items-seccion, .modal-content {
+      padding: 20px;
+  }
+
+  .image-column {
+    grid-auto-flow: row; /* Apila las imágenes verticalmente */
+  }
 }
 
 
-/* TOOLTIP PERSONALIZADO EN IMÁGENES */
-.imagen-con-tooltip {
+/* --- ÍCONOS FLOTANTES DE CONTACTO --- */
+#whatsapp-float, #Instagram-float, #Maps-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999;
+}
+#Instagram-float { bottom: 85px; }
+#Maps-float { bottom: 150px; }
+
+#whatsapp-float img, #Instagram-float img, #Maps-float img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 2px solid #fffaf6;
+}
+
+#whatsapp-float img:hover, #Instagram-float img:hover, #Maps-float img:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+.imagen-con-tooltip a {
   position: relative;
-  display: inline-block;
+  display: flex;
+  align-items: center;
 }
 
 .imagen-con-tooltip .tooltip {
   visibility: hidden;
   background-color: #5e4b3c;
-  color: #fff;
+  color: #fffaf6;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 8px;
+  padding: 8px 12px;
   position: absolute;
-  bottom: 110%;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.8em;
-  white-space: nowrap;
   z-index: 1;
   opacity: 0;
   transition: opacity 0.3s ease;
+  right: 120%;
+  white-space: nowrap;
 }
 
-.imagen-con-tooltip:hover .tooltip {
+.imagen-con-tooltip .tooltip::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent #5e4b3c;
+}
+
+.imagen-con-tooltip a:hover .tooltip {
   visibility: visible;
   opacity: 1;
+}
+
+
+/* ============================================= */
+/* --- ESTILOS DEL PANEL DE ADMINISTRACIÓN --- */
+/* ============================================= */
+.admin-section h1 {
+    text-align: center;
+    color: #5e4b3c;
+}
+
+.formulario-seccion, .lista-items-seccion {
+    background-color: #fffaf6;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    border: 1px solid #e0d8cf;
+}
+
+.formulario-seccion h2, .lista-items-seccion h2, .modal-content h2 {
+    font-size: 2rem;
+    color: #5e4b3c;
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d8cfc4;
+}
+
+/* Modificador para las tarjetas en la vista de admin */
+.admin-card-view .admin-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px; /* Espacio entre los detalles y los botones */
+    padding-top: 20px;
+    border-top: 1px solid #e0d8cf;
+}
+
+.admin-actions .btn-edit, .admin-actions .btn-delete {
+    flex-grow: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-edit {
+    background-color: #8c7c6b;
+}
+.btn-edit:hover {
+    background-color: #736557;
+    transform: translateY(-1px);
+}
+
+.btn-delete {
+    background-color: #a35d5d;
+}
+.btn-delete:hover {
+    background-color: #8a4c4c;
+    transform: translateY(-1px);
+}
+
+/* --- Estilos para Formularios de Admin (Crear y Editar) --- */
+.form-admin, .modal-content form {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    flex-grow: 1;
+}
+
+.form-admin fieldset {
+    border: 1px solid #e0d8cf;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 0;
+}
+
+.form-admin legend {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #8c7c6b;
+    padding: 0 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"], .form-group input[type="number"], .form-group input[type="date"], .form-group textarea, .form-group input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d8cfc4;
+    border-radius: 5px;
+    font-size: 1rem;
+    color: #5e4b3c;
+    background-color: #ffffff;
+    box-sizing: border-box;
+}
+
+.form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-admin button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #5e4b3c;
+    color: #fffaf6;
+    border: none;
+    border-radius: 6px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.form-admin button[type="submit"]:hover {
+    background-color: #4a3c30;
+}
+
+.form-admin button:disabled {
+    background-color: #a9a9a9;
+    cursor: not-allowed;
+}
+
+/* --- Estilos para Modales de Edición --- */
+.modal-content {
+    background-color: #fffaf6;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+#current-images-vestido, #current-images-trabajo {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f5f0eb;
+    border-radius: 5px;
+    flex-wrap: wrap;
+}
+
+.admin-image-preview {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.admin-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.btn-delete-img {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 24px;
+    height: 24px;
+    background-color: #a35d5d;
+    color: white;
+    border: 2px solid #fffaf6;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn-delete-img:hover {
+    background-color: #8a4c4c;
+    transform: scale(1.1);
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0d8cf;
+}
+
+.modal-actions button {
+    padding: 10px 25px;
+    border-radius: 6px;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.modal-actions button[type="submit"] {
+    background-color: #5e4b3c;
+    color: #fffaf6;
+}
+
+.modal-actions button[type="submit"]:hover {
+    background-color: #4a3c30;
+}
+
+.modal-actions button[type="button"] {
+    background-color: #f1f1f1;
+    border: 1px solid #d8cfc4;
+    color: #5e4b3c;
+}
+
+.modal-actions button[type="button"]:hover {
+    background-color: #e0d8cf;
 }

@@ -2,12 +2,10 @@
  * Lógica del panel de administración para gestionar el contenido de Firestore.
  */
 
-// Módulos de Firebase para Firestore y Storage.
 import { db, storage } from './firebase.js';
-import { collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
+import { collection, addDoc, getDocs, query, orderBy, doc, deleteDoc, updateDoc, getDoc, deleteField } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-firestore.js";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-storage.js";
 
-// Inicializa los listeners y carga los datos iniciales al cargar el DOM.
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('formVestido').addEventListener('submit', (e) => handleFormSubmit(e, 'vestidos'));
     document.getElementById('formTrabajo').addEventListener('submit', (e) => handleFormSubmit(e, 'trabajos'));
@@ -16,21 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
     setupModalHandlers();
 });
 
-/**
- * Sube los archivos de imagen a Firebase Storage.
- * @param {HTMLFormElement} form - Formulario que contiene los inputs de archivo.
- * @param {string} tipo - Colección de Firestore ('vestidos' o 'trabajos').
- * @returns {Promise<Object>} Objeto con las rutas de las imágenes subidas.
- */
 async function subirImagenes(form, tipo) {
     const inputs = form.querySelectorAll('input[type=file]');
     const rutas = {};
-
     for (let i = 0; i < inputs.length; i++) {
         const input = inputs[i];
+        if (!input.id) continue;
         const file = input.files[0];
-        // Normaliza la clave para la base de datos (ej: 'trabajo-foto1' -> 'foto1').
-        const key = `foto${i + 1}`;
+        const key = input.id.includes('edit') ? input.id.split('-').pop().replace(/\d/g, '') + (Array.from(inputs).indexOf(input) + 1) : `foto${i + 1}`;
 
         if (file) {
             const filePath = `images/${tipo}/${Date.now()}_${file.name}`;
@@ -42,12 +33,6 @@ async function subirImagenes(form, tipo) {
     return rutas;
 }
 
-
-/**
- * Gestiona el envío de formularios para crear nuevos documentos en Firestore.
- * @param {Event} event - Evento de submit del formulario.
- * @param {string} tipo - Colección de Firestore a la que se agregará el documento.
- */
 async function handleFormSubmit(event, tipo) {
     event.preventDefault();
     const form = event.target;
@@ -66,9 +51,10 @@ async function handleFormSubmit(event, tipo) {
             data.nombre = form.elements.nombre.value;
             data.descripcion = form.elements.descripcion.value;
             data.precio = form.elements.precio.value;
-            data.talles = form.elements.talles.value;
         } else {
-            data.titulo = form.elements.titulo.value;
+            data.titulo = document.getElementById('titulo').value;
+            data.descripcion = document.getElementById('trabajo-descripcion').value;
+            data.fecha = document.getElementById('trabajo-fecha').value;
         }
 
         await addDoc(collection(db, tipo), data);
@@ -84,12 +70,6 @@ async function handleFormSubmit(event, tipo) {
     }
 }
 
-/**
- * Elimina un documento de Firestore y sus imágenes asociadas de Storage.
- * @param {string} id - ID del documento a eliminar.
- * @param {string} tipo - Colección a la que pertenece el documento.
- * @param {Object} fotos - Objeto con las rutas de las imágenes a eliminar.
- */
 async function handleDelete(id, tipo, fotos) {
     const itemType = tipo.slice(0, -1);
     if (!confirm(`¿Confirmas la eliminación de este ${itemType}?`)) return;
@@ -112,29 +92,42 @@ async function handleDelete(id, tipo, fotos) {
     }
 }
 
-// Asigna los manejadores de eventos para los modales de edición.
+async function handleDeleteImage(button) {
+    const { id, tipo, key, path } = button.dataset;
+    if (!confirm(`¿Estás seguro de que quieres eliminar la imagen ${key}?`)) return;
+
+    try {
+        await deleteObject(ref(storage, path));
+        const docRef = doc(db, tipo, id);
+        await updateDoc(docRef, { [`fotos.${key}`]: deleteField() });
+        button.parentElement.remove();
+        alert(`Imagen ${key} eliminada.`);
+        await cargarDatos(tipo);
+    } catch (error) {
+        console.error("Error al eliminar imagen:", error);
+        alert("No se pudo eliminar la imagen. Revisa la consola.");
+    }
+}
+
 function setupModalHandlers() {
-    const modals = {
-        vestido: document.getElementById('editModalVestido'),
-        trabajo: document.getElementById('editModalTrabajo')
-    };
+    const modals = { vestido: document.getElementById('editModalVestido'), trabajo: document.getElementById('editModalTrabajo') };
     const closeModal = (modal) => { if (modal) modal.style.display = 'none'; };
 
-    document.querySelectorAll('.modal-overlay').forEach(overlay => overlay.addEventListener('click', (e) => {
-        if (e.target === overlay) closeModal(overlay);
-    }));
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) closeModal(overlay);
+            if (e.target.matches('.btn-delete-img')) {
+                handleDeleteImage(e.target);
+            }
+        });
+    });
+    
     document.getElementById('cancelEditVestido').addEventListener('click', () => closeModal(modals.vestido));
     document.getElementById('cancelEditTrabajo').addEventListener('click', () => closeModal(modals.trabajo));
-
     document.getElementById('formEditarVestido').addEventListener('submit', (e) => handleEditSubmit(e, 'vestidos'));
     document.getElementById('formEditarTrabajo').addEventListener('submit', (e) => handleEditSubmit(e, 'trabajos'));
 }
 
-/**
- * Abre el modal de edición y lo puebla con los datos del documento.
- * @param {string} id - ID del documento a editar.
- * @param {string} tipo - Colección a la que pertenece el documento.
- */
 async function openEditModal(id, tipo) {
     const modal = document.getElementById(tipo === 'vestidos' ? 'editModalVestido' : 'editModalTrabajo');
     const form = modal.querySelector('form');
@@ -150,26 +143,33 @@ async function openEditModal(id, tipo) {
             form.elements['edit-nombre'].value = data.nombre || '';
             form.elements['edit-descripcion'].value = data.descripcion || '';
             form.elements['edit-precio'].value = data.precio || '';
-            form.elements['edit-talles'].value = data.talles || '';
         } else {
-            form.elements['edit-titulo'].value = data.titulo || '';
+            document.getElementById('edit-titulo').value = data.titulo || '';
+            document.getElementById('edit-descripcion-trabajo').value = data.descripcion || '';
+            document.getElementById('edit-fecha-trabajo').value = data.fecha || '';
         }
         
         const imageContainer = form.querySelector(tipo === 'vestidos' ? '#current-images-vestido' : '#current-images-trabajo');
         imageContainer.innerHTML = '';
         if (data.fotos) {
-            const imagePromises = Object.keys(data.fotos).sort().map(async key => {
+            await Promise.all(Object.keys(data.fotos).sort().map(async key => {
                 try {
-                    const url = await getDownloadURL(ref(storage, data.fotos[key]));
-                    return `<img src="${url}" alt="${key}" style="width: 80px; height: auto; margin-right: 10px; border-radius: 4px;">`;
-                } catch (e) {
-                    console.warn(e.message);
-                    return '';
-                }
-            });
-            imageContainer.innerHTML = (await Promise.all(imagePromises)).join('');
+                    const path = data.fotos[key];
+                    const url = await getDownloadURL(ref(storage, path));
+                    const previewDiv = document.createElement('div');
+                    previewDiv.className = 'admin-image-preview';
+                    previewDiv.innerHTML = `
+                        <img src="${url}" alt="${key}">
+                        <button type="button" class="btn-delete-img" 
+                                data-id="${id}" 
+                                data-tipo="${tipo}" 
+                                data-key="${key}" 
+                                data-path="${path}">×</button>
+                    `;
+                    imageContainer.appendChild(previewDiv);
+                } catch (e) { console.warn(`No se pudo cargar la imagen ${key}: ${e.message}`); }
+            }));
         }
-        
         modal.style.display = 'flex';
     } catch (error) {
         console.error(`Error en openEditModal:`, error);
@@ -177,12 +177,6 @@ async function openEditModal(id, tipo) {
     }
 }
 
-
-/**
- * Gestiona el envío del formulario de edición para actualizar un documento.
- * @param {Event} event - Evento de submit del formulario.
- * @param {string} tipo - Colección a la que pertenece el documento.
- */
 async function handleEditSubmit(event, tipo) {
     event.preventDefault();
     const form = event.target;
@@ -194,32 +188,23 @@ async function handleEditSubmit(event, tipo) {
     try {
         const oldDocSnap = await getDoc(doc(db, tipo, id));
         const oldData = oldDocSnap.data();
-
         const nuevasFotosRutas = await subirImagenes(form, tipo);
-        
         const updatedData = {};
         if (tipo === 'vestidos') {
-            updatedData.nombre = form.elements['edit-nombre'].value;
-            updatedData.descripcion = form.elements['edit-descripcion'].value;
-            updatedData.precio = form.elements['edit-precio'].value;
-            updatedData.talles = form.elements['edit-talles'].value;
+            updatedData.nombre = document.getElementById('edit-nombre').value;
+            updatedData.descripcion = document.getElementById('edit-descripcion').value;
+            updatedData.precio = document.getElementById('edit-precio').value;
         } else {
-            updatedData.titulo = form.elements['edit-titulo'].value;
+            updatedData.titulo = document.getElementById('edit-titulo').value;
+            updatedData.descripcion = document.getElementById('edit-descripcion-trabajo').value;
+            updatedData.fecha = document.getElementById('edit-fecha-trabajo').value;
         }
 
-        updatedData.fotos = { ...oldData.fotos };
-        const oldPathsToDelete = [];
-        for (const key in nuevasFotosRutas) {
-            if (oldData.fotos && oldData.fotos[key]) {
-                oldPathsToDelete.push(oldData.fotos[key]);
-            }
-            updatedData.fotos[key] = nuevasFotosRutas[key];
-        }
-
+        updatedData.fotos = { ...oldData.fotos, ...nuevasFotosRutas };
         await updateDoc(doc(db, tipo, id), updatedData);
         
-        const deletePromises = oldPathsToDelete.map(path => deleteObject(ref(storage, path)));
-        await Promise.all(deletePromises);
+        const oldPathsToDelete = Object.keys(nuevasFotosRutas).map(key => oldData.fotos?.[key]).filter(Boolean);
+        await Promise.all(oldPathsToDelete.map(path => deleteObject(ref(storage, path))));
 
         alert(`${tipo.slice(0, -1).charAt(0).toUpperCase() + tipo.slice(1, -1)} actualizado.`);
         document.getElementById(tipo === 'vestidos' ? 'editModalVestido' : 'editModalTrabajo').style.display = 'none';
@@ -233,10 +218,6 @@ async function handleEditSubmit(event, tipo) {
     }
 }
 
-/**
- * Carga documentos de una colección y los renderiza en el DOM de forma segura.
- * @param {string} tipo - Colección de Firestore para cargar.
- */
 async function cargarDatos(tipo) {
     const listaElement = document.getElementById(tipo === 'vestidos' ? 'listaVestidos' : 'listaTrabajos');
     listaElement.innerHTML = '';
@@ -253,64 +234,38 @@ async function cargarDatos(tipo) {
         for (const docSnapshot of querySnapshot.docs) {
             const item = { id: docSnapshot.id, ...docSnapshot.data() };
             const cardDiv = document.createElement('div');
-            cardDiv.className = 'item-card';
+            cardDiv.className = 'product-card-detailed admin-card-view'; // Reutiliza estilo público con un modificador
 
-            const imageContainer = document.createElement('div');
-            if (tipo === 'trabajos') {
-                imageContainer.className = 'item-images-container';
-                if (item.fotos) {
-                    const photoPromises = Object.keys(item.fotos).sort().map(key => getDownloadURL(ref(storage, item.fotos[key])));
-                    const urls = await Promise.all(photoPromises);
-                    urls.forEach(url => {
-                        const img = document.createElement('img');
-                        img.src = url;
-                        img.className = 'item-image-multi';
-                        imageContainer.appendChild(img);
-                    });
-                }
-            } else {
-                imageContainer.className = 'item-image';
-                let imgSrc = 'img/placeholder.png';
-                if (item.fotos && item.fotos.foto1) {
-                    try {
-                        imgSrc = await getDownloadURL(ref(storage, item.fotos.foto1));
-                    } catch (e) {
-                        console.error(e.message);
-                    }
-                }
-                imageContainer.style.backgroundImage = `url('${imgSrc}')`;
-            }
+            // --- Columna de Información ---
+            const infoColumn = document.createElement('div');
+            infoColumn.className = 'info-column';
 
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'item-info';
+            const contentWrap = document.createElement('div'); // Contenedor para el contenido principal
 
-            const titleElement = document.createElement('h3');
-            titleElement.className = 'item-title';
+            const titleElement = document.createElement('h2');
+            titleElement.className = 'product-title';
             titleElement.textContent = item.nombre || item.titulo;
-            infoDiv.appendChild(titleElement);
+            contentWrap.appendChild(titleElement);
+
+            const detailsList = document.createElement('ul');
+            detailsList.className = 'details-list';
 
             if (tipo === 'vestidos') {
-                const descElement = document.createElement('p');
-                descElement.className = 'item-description';
-                descElement.textContent = item.descripcion || '';
-                infoDiv.appendChild(descElement);
-
-                const detailsDiv = document.createElement('div');
-                detailsDiv.className = 'item-details';
-                
-                const priceSpan = document.createElement('span');
-                priceSpan.className = 'item-price';
-                priceSpan.textContent = `Precio: $${item.precio || 'N/A'}`;
-
-                const sizesSpan = document.createElement('span');
-                sizesSpan.className = 'item-sizes';
-                sizesSpan.textContent = `Talles: ${item.talles || 'N/A'}`;
-
-                detailsDiv.appendChild(priceSpan);
-                detailsDiv.appendChild(sizesSpan);
-                infoDiv.appendChild(detailsDiv);
+                detailsList.innerHTML = `
+                    <li><strong>Precio:</strong> $${item.precio ? Number(item.precio).toLocaleString('es-AR') : 'N/A'}</li>
+                    <li>${item.descripcion || "Sin descripción."}</li>
+                `;
+            } else {
+                const fecha = item.fecha ? new Date(item.fecha + 'T00:00:00').toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
+                detailsList.innerHTML = `
+                    <li><strong>Fecha:</strong> ${fecha}</li>
+                    <li>${item.descripcion || "Sin descripción."}</li>
+                `;
             }
-            
+            contentWrap.appendChild(detailsList);
+            infoColumn.appendChild(contentWrap);
+
+            // --- Acciones de Admin ---
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'admin-actions';
 
@@ -326,14 +281,30 @@ async function cargarDatos(tipo) {
 
             actionsDiv.appendChild(editButton);
             actionsDiv.appendChild(deleteButton);
+            infoColumn.appendChild(actionsDiv); // Se añaden al final de la columna de info
 
-            cardDiv.appendChild(imageContainer);
-            cardDiv.appendChild(infoDiv);
-            cardDiv.appendChild(actionsDiv);
+            // --- Columna de Imágenes ---
+            const imageColumn = document.createElement('div');
+            imageColumn.className = 'image-column';
+
+            if (item.fotos && Object.keys(item.fotos).length > 0) {
+                try {
+                    const urls = await Promise.all(Object.values(item.fotos).map(path => getDownloadURL(ref(storage, path))));
+                    urls.forEach(url => {
+                        const img = document.createElement('img');
+                        img.src = url;
+                        img.className = 'product-image';
+                        imageColumn.appendChild(img);
+                    });
+                } catch (e) { imageColumn.innerHTML = '<p>Error al cargar imágenes.</p>'; }
+            } else {
+                imageColumn.innerHTML = '<p class="aviso-vacio" style="text-align:center; width:100%;">No hay imágenes</p>';
+            }
             
+            cardDiv.appendChild(infoColumn);
+            cardDiv.appendChild(imageColumn);
             listaElement.appendChild(cardDiv);
         }
-
     } catch (error) {
         console.error(`Error en cargarDatos:`, error);
         listaElement.innerHTML = `<p class="aviso-error">Error al cargar datos. Ver la consola.</p>`;
